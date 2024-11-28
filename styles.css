@@ -1,0 +1,19 @@
+#display {
+  display: grid;
+  place-items: center;
+}
+
+#gameDisplay {
+  border: 1px solid;
+  text-align: center;
+  width: 800px;
+}
+
+#scoreBar {
+  display: flex;
+  justify-content: space-around;
+}
+
+.mystyle {
+  border: 3px solid red;
+}
