@@ -10,13 +10,13 @@
         <h1 id="titleText">Best of 3</h1>
         <div id="scoreBar">
           <h2 id="selfScoreText">0</h2>
-          <h2 id="timerText">5 seconds remeaning</h2>
+          <h2 id="timerText">3 seconds remeaning</h2>
           <h2 id="enemyScoreText">0</h2>
         </div>
-        <div id="selection">
-          <img id="rock" src="rock.png" alt="rock" />
-          <img id="paper" src="paper.png" alt="paper" />
-          <img id="scissors" src="scissors.png" alt="scissors" />
+        <div id="result">
+          <img id="playerChoice" src="q.png" alt="player choice" />
+          <h1>VS</h1>
+          <img id="computerChoice" src="q.png" alt="computer choice" />
         </div>
 
         <!-- <div id="selection2">
@@ -24,6 +24,26 @@
           <img src="paperwin.png" alt="paper" />
           <img src="scissorswin.png" alt="scissors" />
         </div> -->
+      </div>
+      <div id="selection">
+        <img
+          id="rock"
+          src="rock.png"
+          alt="rock"
+          onclick='selection("rock.png");'
+        />
+        <img
+          id="paper"
+          src="paper.png"
+          alt="paper"
+          onclick='selection("paper.png");'
+        />
+        <img
+          id="scissors"
+          src="scissors.png"
+          alt="scissors"
+          onclick='selection("scissors.png");'
+        />
       </div>
     </div>
     <script src="script.js"></script>

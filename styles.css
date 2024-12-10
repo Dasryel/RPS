@@ -14,6 +14,17 @@
   justify-content: space-around;
 }
 
-.mystyle {
-  border: 3px solid red;
+#result {
+  display: flex;
+  justify-content: space-around;
+}
+
+#result img {
+  border: solid black;
+}
+
+img {
+  border-radius: 50%;
+  width: 100%;
+  max-width: 230px;
 }

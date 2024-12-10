@@ -1,106 +1,68 @@
 let imageRock = document.getElementById("rock");
 let imagePaper = document.getElementById("paper");
 let imageScissors = document.getElementById("scissors");
+let playerChoiceImage = document.getElementById("playerChoice");
+let computerChoiceImage = document.getElementById("computerChoice");
 
 let timerText = document.getElementById("timerText");
 let selfScoreText = document.getElementById("selfScoreText");
 let enemyScoreText = document.getElementById("enemyScoreText");
 let titleText = document.getElementById("titleText");
 
-let count = 5;
+let count = 3;
 let selected = 0;
 let computerChoice = 0;
 let selfScore = 0;
 let enemyScore = 0;
+let timer;
+let anotherTimer;
 
-imageRock.addEventListener("click", highlightFunctionRock);
-imagePaper.addEventListener("click", highlightFunctionPaper);
-imageScissors.addEventListener("click", highlightFunctionScissors);
+function selection(element) {
+  clearInterval(timer);
+  playerChoiceImage.src = element;
 
-function highlightFunctionRock() {
-  if (selected == 0) {
-    selected = 1;
-    let timer = setInterval(function () {
-      count--;
-      timerText.innerHTML = count + " seconds remeaning";
-
-      if (count == 0) {
-        count = 5;
-        clearInterval(timer);
-        getResult(selected);
-      }
-    }, 1000);
-    imageRock.classList.toggle("mystyle");
-  } else if (selected == 1) {
-    selected = 0;
-    imageRock.classList.toggle("mystyle");
-  } else {
-    alreadySelected(selected);
-  }
-}
-
-function highlightFunctionPaper() {
-  if (selected == 0) {
-    selected = 2;
-    let timer = setInterval(function () {
-      count--;
-      timerText.innerHTML = count + " seconds remeaning";
-
-      if (count == 0) {
-        count = 5;
-        clearInterval(timer);
-        getResult(selected);
-      }
-    }, 1000);
-    imagePaper.classList.toggle("mystyle");
-  } else if (selected == 2) {
-    selected = 0;
-    imagePaper.classList.toggle("mystyle");
-  } else {
-    alreadySelected(selected);
-  }
-}
-
-function highlightFunctionScissors() {
-  if (selected == 0) {
-    selected = 3;
-    let timer = setInterval(function () {
-      count--;
-      timerText.innerHTML = count + " seconds remeaning";
-
-      if (count == 0) {
-        count = 5;
-        clearInterval(timer);
-        getResult(selected);
-      }
-    }, 1000);
-    imageScissors.classList.toggle("mystyle");
-  } else if (selected == 3) {
-    selected = 0;
-    imageScissors.classList.toggle("mystyle");
-  } else {
-    alreadySelected(selected);
-  }
-}
-
-function alreadySelected(s) {
-  switch (s) {
-    case 1:
-      alert("You have already selected ROCK!");
+  switch (element) {
+    case "rock.png":
+      selected = 1;
       break;
 
-    case 2:
-      alert("You have already selected PAPERS!");
+    case "paper.png":
+      selected = 2;
       break;
 
-    case 3:
-      alert("You have already selected SCISSORS!");
+    case "scissors.png":
+      selected = 3;
       break;
   }
+
+  timer = setInterval(function () {
+    count--;
+    timerText.innerHTML = count + " seconds remaining";
+
+    if (count == 0) {
+      count = 3;
+      clearInterval(timer);
+      getResult(selected);
+    }
+  }, 1000);
 }
 
 function getResult(playerChoice) {
   computerChoice = Math.floor(Math.random() * 3) + 1;
+
+  switch (computerChoice) {
+    case 1:
+      computerChoiceImage.src = "rock.png";
+      break;
+
+    case 2:
+      computerChoiceImage.src = "paper.png";
+      break;
+
+    case 3:
+      computerChoiceImage.src = "scissors.png";
+      break;
+  }
 
   switch (playerChoice) {
     case 1:
@@ -115,7 +77,6 @@ function getResult(playerChoice) {
       } else {
         timerText.innerHTML = "Draw!";
       }
-      imageRock.classList.toggle("mystyle");
       break;
 
     case 2:
@@ -130,7 +91,6 @@ function getResult(playerChoice) {
       } else {
         timerText.innerHTML = "Draw!";
       }
-      imagePaper.classList.toggle("mystyle");
 
       break;
 
@@ -146,13 +106,17 @@ function getResult(playerChoice) {
       } else {
         timerText.innerHTML = "Draw!";
       }
-      imageScissors.classList.toggle("mystyle");
-
       break;
   }
   selected = 0;
   selfScoreText.innerHTML = selfScore;
   enemyScoreText.innerHTML = enemyScore;
+
+  anotherTimer = setInterval(function () {
+    clearInterval(anotherTimer);
+    computerChoiceImage.src = "q.png";
+    playerChoiceImage.src = "q.png";
+  }, 1000);
 }
 
 function check(playerScore, computerScore) {
