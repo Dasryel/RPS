@@ -1,4 +1,22 @@
-#display {
+body {
+  font-family: "Roboto", sans-serif;
+}
+#spDisplay {
+  display: grid;
+  place-items: center;
+}
+
+#mpDisplay {
+  display: grid;
+  place-items: center;
+}
+
+#optionDisplay {
+  display: grid;
+  place-items: center;
+}
+
+#creditsDisplay {
   display: grid;
   place-items: center;
 }
@@ -23,8 +41,85 @@
   border: solid black;
 }
 
+button,
+input,
+label {
+  font-family: inherit; /* Inherits the font from the body */
+}
 img {
   border-radius: 50%;
   width: 100%;
   max-width: 230px;
+}
+
+#spMenu {
+  display: grid;
+  place-items: center;
+}
+
+#spMenu select {
+  width: 100px;
+  height: 50px;
+  text-align: center;
+  font-size: 25px;
+}
+
+#spMenu label {
+  font-size: 24px;
+}
+
+#mainMenu {
+  display: grid;
+  place-items: center;
+}
+button {
+  width: 240px;
+  height: 150px;
+  margin: 5px;
+  font-size: 24px;
+}
+
+input {
+  width: 240px;
+  height: 150px;
+}
+input[type="text"] {
+  font-size: 65px;
+}
+
+#joinButton {
+  color: white;
+  background-color: green;
+}
+
+#hostButton {
+  color: white;
+  background-color: rgb(14, 14, 232);
+}
+
+.modal {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px); /* Blurred background */
+}
+
+.modal-content {
+  display: grid;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+body.modal-active {
+  overflow: hidden; /* Prevent scrolling */
 }

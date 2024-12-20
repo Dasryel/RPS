@@ -4,13 +4,49 @@
     <link rel="stylesheet" href="styles.css" />
     <title>Rock paper sciccors</title>
   </head>
+
   <body>
-    <div id="display">
+    <div id="mainMenu">
+      <h1>Rock Paper Scissors</h1>
+      <button id="spButton">Singleplayer</button>
+      <button id="mpButton">Multiplayer</button>
+      <button id="optionButton">Options</button>
+      <button id="creditsButton">Credits</button>
+    </div>
+
+    <div id="spMenu">
+      <h2>Singleplayer settings</h2>
+
+      <label for="dropsInput">First to: </label>
+      <select id="dropsInput">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="infinite">∞</option>
+      </select>
+      <br />
+
+      <label for="timerSelect">Timer: </label>
+      <select id="timerSelect">
+        <option value="off">OFF</option>
+        <option value="1">1 second</option>
+        <option value="2">2 seconds</option>
+        <option value="3">3 seconds</option>
+      </select>
+      <br />
+
+      <button id="startGameButton">Start Game</button><br />
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="spDisplay">
       <div id="gameDisplay">
-        <h1 id="titleText">Best of 3</h1>
+        <h1 id="titleText"></h1>
         <div id="scoreBar">
           <h2 id="selfScoreText">0</h2>
-          <h2 id="timerText">3 seconds remeaning</h2>
+          <h2 id="timerText"></h2>
           <h2 id="enemyScoreText">0</h2>
         </div>
         <div id="result">
@@ -45,7 +81,44 @@
           onclick='selection("scissors.png");'
         />
       </div>
+      <button id="backToSpMenuButton">← Back</button>
     </div>
+
+    <div id="gameOverModal" class="modal">
+      <div class="modal-content">
+        <h1 id="resultText"></h1>
+        <p id="scoreText"></p>
+        <button id="replayButton">Replay Again</button>
+        <button id="changeSettingsButton">Change Settings</button>
+        <button id="backToMenuButton">Main Menu</button>
+      </div>
+    </div>
+
+    <div id="mpDisplay">
+      <h2>Coming soon!</h2>
+      <input type="text" name="codeInput" placeholder="Enter game code" /><br />
+      <button id="joinButton">Join</button><br />
+      <button id="hostButton">Host</button><br />
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="optionDisplay">
+      <h2>Coming soon!</h2>
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="creditsDisplay">
+      <h2>Created by Dasryel</h2>
+      <h3>Special thanks to:</h3>
+      <ul>
+        <li>TopDoge</li>
+        <li>W3Schools</li>
+        <li>CodeBro</li>
+        <li>ChatGPT</li>
+      </ul>
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>

@@ -8,8 +8,42 @@ let timerText = document.getElementById("timerText");
 let selfScoreText = document.getElementById("selfScoreText");
 let enemyScoreText = document.getElementById("enemyScoreText");
 let titleText = document.getElementById("titleText");
+const resultText = document.getElementById("resultText");
+const scoreText = document.getElementById("scoreText");
 
-let count = 3;
+let gm = false;
+
+const mainMenu = document.getElementById("mainMenu");
+const spMenu = document.getElementById("spMenu");
+const spDisplay = document.getElementById("spDisplay");
+const mpDisplay = document.getElementById("mpDisplay");
+const optionDisplay = document.getElementById("optionDisplay");
+const creditsDisplay = document.getElementById("creditsDisplay");
+const gameOverModal = document.getElementById("gameOverModal");
+
+const spButton = document.getElementById("spButton");
+const mpButton = document.getElementById("mpButton");
+const optionButton = document.getElementById("optionButton");
+const creditsButton = document.getElementById("creditsButton");
+const startGameButton = document.getElementById("startGameButton");
+const backToSpMenuButton = document.getElementById("backToSpMenuButton");
+const replayButton = document.getElementById("replayButton");
+const changeSettingsButton = document.getElementById("changeSettingsButton");
+const mainMenuButton = document.getElementById("mainMenuButton");
+
+const backToMenuButtons = document.querySelectorAll("#backToMenuButton");
+
+spDisplay.style.display = "none";
+mpDisplay.style.display = "none";
+optionDisplay.style.display = "none";
+creditsDisplay.style.display = "none";
+spMenu.style.display = "none";
+gameOverModal.style.display = "none";
+
+const dropsInput = document.getElementById("dropsInput");
+const timerSelect = document.getElementById("timerSelect");
+
+let count;
 let selected = 0;
 let computerChoice = 0;
 let selfScore = 0;
@@ -17,8 +51,136 @@ let enemyScore = 0;
 let timer;
 let anotherTimer;
 
-function selection(element) {
+let drops;
+let timerSpSetting;
+
+spButton.addEventListener("click", (event) => {
+  mainMenu.style.display = "none";
+  spMenu.style.display = "grid";
+});
+
+startGameButton.addEventListener("click", (event) => {
+  drops = dropsInput.value;
+  timerSpSetting = timerSelect.value;
+
+  if (drops === "infinite") {
+    drops = Infinity; // You can use `Infinity` in JavaScript
+  } else {
+    drops = parseInt(drops);
+  }
+
+  reset();
+  startSpGame(drops, timerSpSetting);
+
+  spMenu.style.display = "none";
+  spDisplay.style.display = "block";
+});
+
+backToSpMenuButton.addEventListener("click", (event) => {
   clearInterval(timer);
+  spMenu.style.display = "grid";
+  spDisplay.style.display = "none";
+});
+
+changeSettingsButton.addEventListener("click", (event) => {
+  reset();
+  spMenu.style.display = "grid";
+  gameOverModal.style.display = "none";
+  spDisplay.style.display = "none";
+  mainMenu.style.display = "none";
+});
+
+replayButton.addEventListener("click", (event) => {
+  drops = parseInt(dropsInput.value);
+  timerSpSetting = timerSelect.value;
+  reset();
+  startSpGame(drops, timerSpSetting);
+  mainMenu.style.display = "none";
+  gameOverModal.style.display = "none";
+  spDisplay.style.display = "block";
+});
+
+mpButton.addEventListener("click", (event) => {
+  mainMenu.style.display = "none";
+  mpDisplay.style.display = "block";
+});
+
+optionButton.addEventListener("click", (event) => {
+  mainMenu.style.display = "none";
+  optionDisplay.style.display = "block";
+});
+
+creditsButton.addEventListener("click", (event) => {
+  mainMenu.style.display = "none";
+  creditsDisplay.style.display = "block";
+});
+
+// Reusing the same "Back to Menu" button for multiple sections
+backToMenuButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    // Find and hide the currently visible section
+    const sections = [
+      spDisplay,
+      mpDisplay,
+      optionDisplay,
+      creditsDisplay,
+      spMenu,
+      gameOverModal,
+    ];
+    sections.forEach((section) => {
+      if (section.style.display !== "none") {
+        section.style.display = "none";
+      }
+    });
+    // Show the main menu
+    mainMenu.style.display = "grid";
+  });
+});
+
+function startSpGame(drops, timerSpSetting) {
+  count = timerSpSetting;
+  titleText.textContent = `First to ${drops}`;
+  if (timerSpSetting == "off") {
+    timerText.textContent = `FIGHT!`;
+  } else {
+    timerText.textContent = `${timerSpSetting} seconds remeaning`;
+    TimerCheck();
+  }
+}
+
+function TimerCheck() {
+  if (gm == false) {
+    timer = setInterval(function () {
+      count--;
+      timerText.innerHTML = count + " seconds remaining";
+
+      if (count <= 0) {
+        if (selected == 0) {
+          selected = Math.floor(Math.random() * 3) + 1;
+
+          switch (selected) {
+            case 1:
+              playerChoiceImage.src = "rock.png";
+              break;
+
+            case 2:
+              playerChoiceImage.src = "paper.png";
+              break;
+
+            case 3:
+              playerChoiceImage.src = "scissors.png";
+              break;
+          }
+        }
+        clearInterval(timer);
+        count = timerSpSetting;
+        getResult(selected);
+      }
+    }, 1000);
+  }
+}
+
+function selection(element) {
   playerChoiceImage.src = element;
 
   switch (element) {
@@ -34,17 +196,9 @@ function selection(element) {
       selected = 3;
       break;
   }
-
-  timer = setInterval(function () {
-    count--;
-    timerText.innerHTML = count + " seconds remaining";
-
-    if (count == 0) {
-      count = 3;
-      clearInterval(timer);
-      getResult(selected);
-    }
-  }, 1000);
+  if (timerSpSetting == "off") {
+    getResult(selected);
+  }
 }
 
 function getResult(playerChoice) {
@@ -111,19 +265,75 @@ function getResult(playerChoice) {
   selected = 0;
   selfScoreText.innerHTML = selfScore;
   enemyScoreText.innerHTML = enemyScore;
-
-  anotherTimer = setInterval(function () {
-    clearInterval(anotherTimer);
-    computerChoiceImage.src = "q.png";
-    playerChoiceImage.src = "q.png";
-  }, 1000);
+  if (timerSpSetting != "off") {
+    anotherTimer = setInterval(function () {
+      clearInterval(anotherTimer);
+      computerChoiceImage.src = "q.png";
+      playerChoiceImage.src = "q.png";
+      TimerCheck();
+    }, 1000);
+  }
 }
 
 function check(playerScore, computerScore) {
-  if (playerScore == 3) {
-    titleText.innerHTML = "VICTORY!";
-  } else if (computerScore == 3) {
-    titleText.innerHTML = "DEFEAT!";
+  if (playerScore == drops) {
+    gm = true;
+    gameOver("VICTORY!", playerScore, computerScore);
+  } else if (computerScore == drops) {
+    gm = true;
+    gameOver("DEFEAT!", playerScore, computerScore);
   }
   return;
 }
+
+function gameOver(result, playerScore, computerScore) {
+  // Update modal text
+  resultText.textContent = result; // "VICTORY!" or "DEFEAT!"
+  scoreText.textContent = `${playerScore}-${computerScore}`;
+
+  // Show modal
+  gameOverModal.style.display = "flex";
+  document.body.classList.add("modal-active");
+
+  selected = 0;
+  clearInterval(timer);
+  clearInterval(anotherTimer);
+}
+
+function reset() {
+  gm = false;
+  selfScore = 0;
+  enemyScore = 0;
+  selfScoreText.innerHTML = selfScore;
+  enemyScoreText.innerHTML = enemyScore;
+  computerChoiceImage.src = "q.png";
+  playerChoiceImage.src = "q.png";
+}
+
+// Add an event listener to the document for key presses
+document.addEventListener("keydown", (event) => {
+  // Check which key was pressed
+  switch (event.code) {
+    case "Numpad1": // Numpad 1 key
+      selected = 1; // Rock
+      playerChoiceImage.src = "rock.png";
+      break;
+
+    case "Numpad2": // Numpad 2 key
+      selected = 2; // Paper
+      playerChoiceImage.src = "paper.png";
+      break;
+
+    case "Numpad3": // Numpad 3 key
+      selected = 3; // Scissors
+      playerChoiceImage.src = "scissors.png";
+      break;
+
+    default:
+      // If any other key is pressed, do nothing
+      break;
+  }
+  if (timerSpSetting == "off") {
+    getResult(selected);
+  }
+});
