@@ -87,16 +87,6 @@ input[type="text"] {
   font-size: 65px;
 }
 
-#joinButton {
-  color: white;
-  background-color: green;
-}
-
-#hostButton {
-  color: white;
-  background-color: rgb(14, 14, 232);
-}
-
 .modal {
   display: none; /* Initially hidden */
   position: fixed;
@@ -122,4 +112,25 @@ input[type="text"] {
 
 body.modal-active {
   overflow: hidden; /* Prevent scrolling */
+}
+
+#mpMenu {
+  display: grid;
+  place-items: center;
+}
+
+#mpSettings {
+  display: grid;
+  place-items: center;
+}
+
+#mpSettings select {
+  width: 100px;
+  height: 50px;
+  text-align: center;
+  font-size: 25px;
+}
+
+#mpSettings label {
+  font-size: 24px;
 }

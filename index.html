@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="/styles.css" />
     <title>Rock paper sciccors</title>
   </head>
 
@@ -50,9 +50,9 @@
           <h2 id="enemyScoreText">0</h2>
         </div>
         <div id="result">
-          <img id="playerChoice" src="q.png" alt="player choice" />
+          <img id="playerChoice" src="/images/q.png" alt="player choice" />
           <h1>VS</h1>
-          <img id="computerChoice" src="q.png" alt="computer choice" />
+          <img id="computerChoice" src="/images/q.png" alt="computer choice" />
         </div>
 
         <!-- <div id="selection2">
@@ -64,27 +64,27 @@
       <div id="selection">
         <img
           id="rock"
-          src="rock.png"
+          src="/images/rock.png"
           alt="rock"
-          onclick='selection("rock.png");'
+          onclick='selection("/images/rock.png");'
         />
         <img
           id="paper"
-          src="paper.png"
+          src="/images/paper.png"
           alt="paper"
-          onclick='selection("paper.png");'
+          onclick='selection("/images/paper.png");'
         />
         <img
           id="scissors"
-          src="scissors.png"
+          src="/images/scissors.png"
           alt="scissors"
-          onclick='selection("scissors.png");'
+          onclick='selection("/images/scissors.png");'
         />
       </div>
       <button id="backToSpMenuButton">← Back</button>
     </div>
 
-    <div id="gameOverModal" class="modal">
+    <div id="gameOverModal" class="modal" style="display: none">
       <div class="modal-content">
         <h1 id="resultText"></h1>
         <p id="scoreText"></p>
@@ -94,12 +94,44 @@
       </div>
     </div>
 
-    <div id="mpDisplay">
+    <div id="mpMenu">
       <h2>Coming soon!</h2>
-      <input type="text" name="codeInput" placeholder="Enter game code" /><br />
+      <input
+        type="text"
+        name="lobbyCodeInput"
+        id="lobbyCodeInput"
+        placeholder="Enter game code"
+      /><br />
       <button id="joinButton">Join</button><br />
-      <button id="hostButton">Host</button><br />
+      <button id="hostMenuButton">Host</button><br />
       <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="mpSettings">
+      <h2>Multiplayer settings</h2>
+
+      <label for="dropsInput">First to: </label>
+      <select id="dropsInput">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="infinite">∞</option>
+      </select>
+      <br />
+
+      <label for="timerSelect">Timer: </label>
+      <select id="timerSelect">
+        <option value="off">OFF</option>
+        <option value="1">1 second</option>
+        <option value="2">2 seconds</option>
+        <option value="3">3 seconds</option>
+      </select>
+      <br />
+
+      <button id="hostButton">Host game</button><br />
+      <button id="backToMpMenuButton">← Back</button>
     </div>
 
     <div id="optionDisplay">
@@ -118,7 +150,6 @@
       </ul>
       <button id="backToMenuButton">← Back</button>
     </div>
-
     <script src="script.js"></script>
   </body>
 </html>

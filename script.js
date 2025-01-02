@@ -16,7 +16,8 @@ let gm = false;
 const mainMenu = document.getElementById("mainMenu");
 const spMenu = document.getElementById("spMenu");
 const spDisplay = document.getElementById("spDisplay");
-const mpDisplay = document.getElementById("mpDisplay");
+const mpMenu = document.getElementById("mpMenu");
+const mpSettings = document.getElementById("mpSettings");
 const optionDisplay = document.getElementById("optionDisplay");
 const creditsDisplay = document.getElementById("creditsDisplay");
 const gameOverModal = document.getElementById("gameOverModal");
@@ -30,16 +31,22 @@ const backToSpMenuButton = document.getElementById("backToSpMenuButton");
 const replayButton = document.getElementById("replayButton");
 const changeSettingsButton = document.getElementById("changeSettingsButton");
 const mainMenuButton = document.getElementById("mainMenuButton");
+const joinButton = document.getElementById("joinButton");
+const hostMenuButton = document.getElementById("hostMenuButton");
+const hostButton = document.getElementById("hostButton");
+const backToMpMenuButton = document.getElementById("backToMpMenuButton");
 
 const backToMenuButtons = document.querySelectorAll("#backToMenuButton");
 
 spDisplay.style.display = "none";
-mpDisplay.style.display = "none";
+mpMenu.style.display = "none";
+mpSettings.style.display = "none";
 optionDisplay.style.display = "none";
 creditsDisplay.style.display = "none";
 spMenu.style.display = "none";
 gameOverModal.style.display = "none";
 
+const lobbyCodeInput = document.getElementById("lobbyCodeInput");
 const dropsInput = document.getElementById("dropsInput");
 const timerSelect = document.getElementById("timerSelect");
 
@@ -102,7 +109,19 @@ replayButton.addEventListener("click", (event) => {
 
 mpButton.addEventListener("click", (event) => {
   mainMenu.style.display = "none";
-  mpDisplay.style.display = "block";
+  mpMenu.style.display = "block";
+});
+
+hostMenuButton.addEventListener("click", (event) => {
+  mpMenu.style.display = "none";
+  mpSettings.style.display = "grid";
+});
+
+hostButton.addEventListener("click", (event) => {});
+
+backToMpMenuButton.addEventListener("click", (event) => {
+  mpSettings.style.display = "none";
+  mpMenu.style.display = "block";
 });
 
 optionButton.addEventListener("click", (event) => {
@@ -121,7 +140,7 @@ backToMenuButtons.forEach((button) => {
     // Find and hide the currently visible section
     const sections = [
       spDisplay,
-      mpDisplay,
+      mpMenu,
       optionDisplay,
       creditsDisplay,
       spMenu,
@@ -149,7 +168,7 @@ function startSpGame(drops, timerSpSetting) {
 }
 
 function TimerCheck() {
-  if (gm == false) {
+  if (gm === false && timerSpSetting !== "off") {
     timer = setInterval(function () {
       count--;
       timerText.innerHTML = count + " seconds remaining";
@@ -184,15 +203,15 @@ function selection(element) {
   playerChoiceImage.src = element;
 
   switch (element) {
-    case "rock.png":
+    case "/images/rock.png":
       selected = 1;
       break;
 
-    case "paper.png":
+    case "/images/paper.png":
       selected = 2;
       break;
 
-    case "scissors.png":
+    case "/images/scissors.png":
       selected = 3;
       break;
   }
@@ -206,15 +225,15 @@ function getResult(playerChoice) {
 
   switch (computerChoice) {
     case 1:
-      computerChoiceImage.src = "rock.png";
+      computerChoiceImage.src = "/images/rock.png";
       break;
 
     case 2:
-      computerChoiceImage.src = "paper.png";
+      computerChoiceImage.src = "/images/paper.png";
       break;
 
     case 3:
-      computerChoiceImage.src = "scissors.png";
+      computerChoiceImage.src = "/images/scissors.png";
       break;
   }
 
@@ -268,8 +287,8 @@ function getResult(playerChoice) {
   if (timerSpSetting != "off") {
     anotherTimer = setInterval(function () {
       clearInterval(anotherTimer);
-      computerChoiceImage.src = "q.png";
-      playerChoiceImage.src = "q.png";
+      computerChoiceImage.src = "/images/q.png";
+      playerChoiceImage.src = "/images/q.png";
       TimerCheck();
     }, 1000);
   }
@@ -304,10 +323,12 @@ function reset() {
   gm = false;
   selfScore = 0;
   enemyScore = 0;
+  selected = 0;
+  clearInterval(timer);
   selfScoreText.innerHTML = selfScore;
   enemyScoreText.innerHTML = enemyScore;
-  computerChoiceImage.src = "q.png";
-  playerChoiceImage.src = "q.png";
+  computerChoiceImage.src = "/images/q.png";
+  playerChoiceImage.src = "/images/q.png";
 }
 
 // Add an event listener to the document for key presses
@@ -316,17 +337,17 @@ document.addEventListener("keydown", (event) => {
   switch (event.code) {
     case "Numpad1": // Numpad 1 key
       selected = 1; // Rock
-      playerChoiceImage.src = "rock.png";
+      playerChoiceImage.src = "/images/rock.png";
       break;
 
     case "Numpad2": // Numpad 2 key
       selected = 2; // Paper
-      playerChoiceImage.src = "paper.png";
+      playerChoiceImage.src = "/images/paper.png";
       break;
 
     case "Numpad3": // Numpad 3 key
       selected = 3; // Scissors
-      playerChoiceImage.src = "scissors.png";
+      playerChoiceImage.src = "/images/scissors.png";
       break;
 
     default:
