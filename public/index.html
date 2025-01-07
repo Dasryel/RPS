@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Rock paper sciccors</title>
+  </head>
+
+  <body>
+    <div id="mainMenu">
+      <h1>Rock Paper Scissors</h1>
+      <button id="spButton">Singleplayer</button>
+      <button id="mpButton">Multiplayer</button>
+      <button id="optionButton">Options</button>
+      <button id="creditsButton">Credits</button>
+    </div>
+
+    <div id="spMenu">
+      <h2>Singleplayer settings</h2>
+
+      <label for="dropsInput">First to: </label>
+      <select id="dropsInput">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="infinite">∞</option>
+      </select>
+      <br />
+
+      <label for="timerSelect">Timer: </label>
+      <select id="timerSelect">
+        <option value="off">OFF</option>
+        <option value="1">1 second</option>
+        <option value="2">2 seconds</option>
+        <option value="3">3 seconds</option>
+      </select>
+      <br />
+
+      <button id="startGameButton">Start Game</button><br />
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="spDisplay">
+      <div id="gameDisplay">
+        <h1 id="titleText"></h1>
+        <div id="scoreBar">
+          <h2 id="selfScoreText">0</h2>
+          <h2 id="timerText"></h2>
+          <h2 id="enemyScoreText">0</h2>
+        </div>
+        <div id="result">
+          <img id="playerChoice" src="/images/q.png" alt="player choice" />
+          <h1>VS</h1>
+          <img id="computerChoice" src="/images/q.png" alt="computer choice" />
+        </div>
+      </div>
+      <div id="selection">
+        <img
+          id="rock"
+          src="/images/rock.png"
+          alt="rock"
+          onclick='selection("/images/rock.png");'
+        />
+        <img
+          id="paper"
+          src="/images/paper.png"
+          alt="paper"
+          onclick='selection("/images/paper.png");'
+        />
+        <img
+          id="scissors"
+          src="/images/scissors.png"
+          alt="scissors"
+          onclick='selection("/images/scissors.png");'
+        />
+      </div>
+      <button id="backToSpMenuButton">← Back</button>
+    </div>
+
+    <div id="mpDisplay" style="display: none">
+      <div id="mpGameDisplay">
+        <h1 id="hostCheckText"></h1>
+        <h1 id="mpTitleText"></h1>
+        <div id="mpScoreBar">
+          <h2 id="player1ScoreText">0</h2>
+          <h2 id="mpTimerText"></h2>
+          <h2 id="player2ScoreText">0</h2>
+        </div>
+        <div id="mpResult">
+          <img id="player1ChoiceImg" src="/images/q.png" alt="player1Choice" />
+          <h1>VS</h1>
+          <img id="player2ChoiceImg" src="/images/q.png" alt="player2Choice" />
+        </div>
+      </div>
+      <div id="mpSelection">
+        <img
+          id="rock"
+          src="/images/rock.png"
+          alt="rock"
+          onclick='mpSelection("/images/rock.png");'
+        />
+        <img
+          id="paper"
+          src="/images/paper.png"
+          alt="paper"
+          onclick='mpSelection("/images/paper.png");'
+        />
+        <img
+          id="scissors"
+          src="/images/scissors.png"
+          alt="scissors"
+          onclick='mpSelection("/images/scissors.png");'
+        />
+      </div>
+      <button id="backToMenuButtonFromLobby">← Back</button>
+      <p id="test1">player1:</p>
+      <p id="test2">player2:</p>
+    </div>
+
+    <div id="gameOverModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <h1 id="resultText"></h1>
+        <p id="scoreText"></p>
+        <button id="replayButton">Replay Again</button>
+        <button id="changeSettingsButton">Change Settings</button>
+        <button id="backToMenuButton">Main Menu</button>
+      </div>
+    </div>
+
+    <div id="mpMenu">
+      <h2>Coming soon!</h2>
+      <input
+        type="text"
+        name="lobbyCodeInput"
+        id="lobbyCodeInput"
+        placeholder="Enter game code"
+      /><br />
+      <button id="joinButton">Join</button><br />
+      <button id="hostMenuButton">Host</button><br />
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="mpSettings">
+      <h2>Multiplayer settings</h2>
+
+      <label for="dropsInput">First to: </label>
+      <select id="dropsInputMp">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="infinite">∞</option>
+      </select>
+      <br />
+
+      <label for="timerSelect">Timer: </label>
+      <select id="timerSelectMp">
+        <option value="off">OFF</option>
+        <option value="1">1 second</option>
+        <option value="2">2 seconds</option>
+        <option value="3">3 seconds</option>
+      </select>
+      <br />
+
+      <button id="hostButton">Host game</button><br />
+      <button id="backToMpMenuButton">← Back</button>
+    </div>
+
+    <div id="optionDisplay">
+      <h2>Coming soon!</h2>
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="creditsDisplay">
+      <h2>Created by Dasryel</h2>
+      <h3>Special thanks to:</h3>
+      <ul>
+        <li>TopDoge</li>
+        <li>W3Schools</li>
+        <li>CodeBro</li>
+        <li>ChatGPT</li>
+      </ul>
+      <button id="backToMenuButton">← Back</button>
+    </div>
+
+    <div id="statsDiv">
+      <p id="playersOnlineText">Online: 0</p>
+    </div>
+
+    <div id="waitingDisplay">
+      <h2>Waiting for other player...</h2>
+
+      <h2>Game info</h2>
+      <h3 id="codeText">Code:</h3>
+      <h3 id="firstToText">First to</h3>
+      <h3 id="mpTimerSettingText">Timer:</h3>
+      <button id="backToMpMenuButtonFromWaiting">← Back</button>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="mp.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,188 @@
+server:
+
+  socket.on("check result1", (lobbyCode, player1) => {
+    console.log("Lobby: " + lobbyCode);
+    console.log("player1: " + player1);
+    player1Choice = player1;
+
+    if (player2Choice === 0) {
+      socket.emit("waiting for other player");
+    } else {
+      getResult(player1Choice, player2Choice);
+    }
+  });
+
+  socket.on("check result2", (lobbyCode, player2) => {
+    console.log("Lobby: " + lobbyCode);
+    console.log("player2: " + player2);
+    player2Choice = player2;
+
+    if (player1Choice === 0) {
+      socket.emit("waiting for other player");
+    } else {
+      getResult(player1Choice, player2Choice);
+    }
+  });
+
+
+function getResult(player1, player2) {
+    switch (player1) {
+      case 1:
+        if (player2 == 2) {
+          player2Score = player2Score + 1;
+          socket.emit(
+            "player1 result",
+            "You lost!",
+            player2Score,
+            "/images/paper.png"
+          );
+          socket.emit(
+            "player2 result",
+            "You win!",
+            player2Score,
+            "/images/rock.png"
+          );
+
+          console.log("PLAYER 2 WON");
+        } else if (player2 == 3) {
+          player1Score = player1Score + 1;
+          socket.emit(
+            "player1 result",
+            "You win!",
+            player1Score,
+            "/images/scissors.png"
+          );
+          socket.emit(
+            "player2 result",
+            "You lost!",
+            player1Score,
+            "/images/rock.png"
+          );
+
+          console.log("PLAYER 1 WON");
+        } else {
+          socket.emit("round draw", "Draw!", "/images/rock.png");
+        }
+        break;
+
+      case 2:
+        if (player2 == 3) {
+          player2Score = player2Score + 1;
+
+          socket.emit(
+            "player1 result",
+            "You lost!",
+            player2Score,
+            "/images/scissors.png"
+          );
+          socket.emit(
+            "player2 result",
+            "You win!",
+            player2Score,
+            "/images/paper.png"
+          );
+
+          console.log("PLAYER 2 WON");
+        } else if (player2 == 1) {
+          player1Score = player1Score + 1;
+
+          socket.emit(
+            "player1 result",
+            "You win!",
+            player1Score,
+            "/images/rock.png"
+          );
+          socket.emit(
+            "player2 result",
+            "You lost!",
+            player1Score,
+            "/images/paper.png"
+          );
+
+          console.log("PLAYER 1 WON");
+        } else {
+          socket.emit("round draw", "Draw!", "/images/paper.png");
+        }
+        break;
+
+      case 3:
+        if (player2 == 1) {
+          player2Score = player2Score + 1;
+
+          socket.emit(
+            "player1 result",
+            "You lost!",
+            player2Score,
+            "/images/rock.png"
+          );
+          socket.emit(
+            "player2 result",
+            "You win!",
+            player2Score,
+            "/images/scissors.png"
+          );
+
+          console.log("PLAYER 2 WON");
+        } else if (player2 == 2) {
+          player1Score = player1Score + 1;
+          socket.emit(
+            "player1 result",
+            "You win!",
+            player1Score,
+            "/images/paper.png"
+          );
+          socket.emit(
+            "player2 result",
+            "You lost!",
+            player1Score,
+            "/images/scissors.png"
+          );
+
+          console.log("PLAYER 1 WON");
+        } else {
+          socket.emit("round draw", "Draw!", "/images/scissors.png");
+        }
+        break;
+    }
+
+    /*switch (player2) {
+      case 1:
+        if (player1 == 2) {
+          player1Score = player1Score + 1;
+          socket.emit("round lost", "You lost", player1Score, player2Score);
+        } else if (player1 == 3) {
+          player2Score = player2Score + 1;
+          socket.emit("round win", "You won!", player1Score, player2Score);
+        } else {
+          socket.emit("round draw", "Draw!");
+        }
+        break;
+
+      case 2:
+        if (player1 == 3) {
+          player1Score = player1Score + 1;
+          socket.emit("round lost", "You lost", player1Score, player2Score);
+        } else if (player1 == 1) {
+          player2Score = player2Score + 1;
+          socket.emit("round win", "You won!", player1Score, player2Score);
+        } else {
+          socket.emit("round draw", "Draw!");
+        }
+        break;
+
+      case 3:
+        if (player2 == 1) {
+          player1Score = player1Score + 1;
+          socket.emit("round lost", "You lost", player1Score, player2Score);
+        } else if (player2 == 2) {
+          player2Score = player2Score + 1;
+          socket.emit("round win", "You won!", player1Score, player2Score);
+        } else {
+          socket.emit("round draw", "Draw!");
+        }
+        break;
+    }
+    */
+    player1Choice = 0;
+    player2Choice = 0;
+  }
