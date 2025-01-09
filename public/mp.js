@@ -10,6 +10,9 @@ const mpTimerText = document.getElementById("mpTimerText");
 const player2ScoreText = document.getElementById("player2ScoreText");
 const hostCheckText = document.getElementById("hostCheckText");
 
+const resultTextMp = document.getElementById("resultTextMp");
+const scoreTextMp = document.getElementById("scoreTextMp");
+
 const test1 = document.getElementById("test1");
 const test2 = document.getElementById("test2");
 
@@ -19,6 +22,7 @@ const timerSelectMp = document.getElementById("timerSelectMp");
 //display
 const waitingDisplay = document.getElementById("waitingDisplay");
 const mpDisplay = document.getElementById("mpDisplay");
+const gameOverModalMp = document.getElementById("gameOverModalMp");
 
 //image
 
@@ -30,6 +34,10 @@ const backToMpMenuButtonFromWaiting = document.getElementById(
 );
 const backToMenuButtonFromLobby = document.getElementById(
   "backToMenuButtonFromLobby"
+);
+
+const backToMenuButtonFromMpGame = document.getElementById(
+  "backToMenuButtonFromMpGame"
 );
 
 //
@@ -233,14 +241,59 @@ function mpSelection(element) {
   }
 }
 
-socket.on("waiting for other player", () => {
-  if (isHost === true) {
-    mpTimerText.textContent = "player 1: DONE! Waiting for other player...";
-    player2ChoiceImg.src = "/images/q.png";
+socket.on("waiting for other player", (waiting) => {
+  if (waiting == 1) {
+    if (isHost === true) {
+      mpTimerText.textContent = "player 2 has chosen their piece";
+      player2ChoiceImg.src = "/images/q.png";
+      player1ChoiceImg.src = "/images/p.png";
+    } else {
+      mpTimerText.textContent = "Player 1 is still choosing...";
+      player1ChoiceImg.src = "/images/p.png";
+    }
   } else {
-    mpTimerText.textContent = "player 2: DONE! Waiting for other player...";
-    player1ChoiceImg.src = "/images/q.png";
+    if (isHost === true) {
+      mpTimerText.textContent = "Player 2 is still choosing...";
+      player2ChoiceImg.src = "/images/p.png";
+    } else {
+      mpTimerText.textContent = "player 1 has chosen their piece";
+      player2ChoiceImg.src = "/images/p.png";
+      player1ChoiceImg.src = "/images/q.png";
+    }
   }
+});
+
+socket.on("game over", (player1Score, player2Score, winner) => {
+  if (isHost === true) {
+    if (winner === 1) {
+      displayGameOver(player1Score, player2Score, "VICTORY!");
+    } else {
+      displayGameOver(player1Score, player2Score, "DEFEAT!");
+    }
+  } else {
+    if (winner === 2) {
+      displayGameOver(player2Score, player1Score, "VICTORY!");
+    } else {
+      displayGameOver(player2Score, player1Score, "DEFEAT!");
+    }
+  }
+});
+
+function displayGameOver(player1Score, player2Score, result) {
+  resultTextMp.textContent = result;
+  scoreTextMp.textContent = `${player1Score}-${player2Score}`;
+
+  // Show modal
+  gameOverModalMp.style.display = "flex";
+  document.body.classList.add("modal-active");
+}
+
+backToMenuButtonFromMpGame.addEventListener("click", (event) => {
+  socket.emit("destroy lobby", gameCode);
+  isHost = false;
+  mainMenu.style.display = "grid";
+  mpDisplay.style.display = "none";
+  gameOverModalMp.style.display = "none";
 });
 
 socket.on("result", (result, player1, player1score, player2, player2score) => {
@@ -270,5 +323,5 @@ socket.on("result", (result, player1, player1score, player2, player2score) => {
 
 socket.on("players online", (count) => {
   console.log("Players online:", count);
-  playersOnlineText.textContent = "Online: " + count;
+  playersOnlineText.textContent = "Players Online: " + count;
 });

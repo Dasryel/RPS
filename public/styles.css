@@ -130,6 +130,29 @@ input[type="text"] {
   text-align: center;
 }
 
+.modalMp {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px); /* Blurred background */
+}
+
+.modal-contentMp {
+  display: grid;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
 body.modal-active {
   overflow: hidden; /* Prevent scrolling */
 }
@@ -156,8 +179,14 @@ body.modal-active {
 }
 
 #statsDiv {
+  display: flex;
   position: fixed;
   bottom: 0;
+}
+
+#vText {
+  position: fixed;
+  right: 25px;
 }
 
 #waitingDisplay {

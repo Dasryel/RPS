@@ -99,7 +99,12 @@ io.on("connection", (socket) => {
   socket.on("destroy lobby", (code) => {
     console.log(code + " lobby destroyed");
     lobbies.delete(code);
-    console.log("lobbies left:" + lobbies);
+    console.log(lobbies.size + " left");
+
+    lobbies.forEach((lobby, lobbyCode) => {
+      console.log("Lobby: " + lobbyCode);
+      console.log("Lobby Details: " + JSON.stringify(lobby));
+    });
   });
 
   socket.on("lobby test", (lobby, player, choice) => {
@@ -128,38 +133,50 @@ io.on("connection", (socket) => {
 
       if (result === 1) {
         lobby.player1Score++;
+        if (gameOverCheck(lobby.player1Score, lobby.drops) == true) {
+          io.to(lobbyCode).emit(
+            "game over",
+            lobby.player1Score,
+            lobby.player2Score,
+            1
+          );
+        }
       } else if (result === 2) {
         lobby.player2Score++;
+        if (gameOverCheck(lobby.player2Score, lobby.drops) == true) {
+          io.to(lobbyCode).emit(
+            "game over",
+            lobby.player1Score,
+            lobby.player2Score,
+            2
+          );
+        }
       }
 
       io.to(lobbyCode).emit(
         "result",
         result,
         lobby.player1Choice,
-        lobby.player2Choice,
         lobby.player1Score,
+        lobby.player2Choice,
         lobby.player2Score
       );
 
       console.log(
-        "RESULT --> " +
-          result +
-          " LOBBY: " +
-          lobbyCode +
-          " player1 chose" +
-          lobby.player1Choice +
-          ", score: " +
-          lobby.player1Score +
-          " player2 chose" +
-          lobby.player2Choice +
-          ", score: " +
-          lobby.player2Score
+        `LOBBY: ${lobbyCode} RESULT --> ${result}  player1 chose ${lobby.player1Choice}, score: ${lobby.player1Score} player2 chose ${lobby.player2Choice}, score: ${lobby.player2Score}`
       );
 
       lobby.player1Choice = 0;
       lobby.player2Choice = 0;
     } else {
-      socket.emit("waiting for other player");
+      let waiting;
+      if (lobby.player1Choice === 0) {
+        waiting = 1;
+      } else {
+        waiting = 2;
+      }
+      io.to(lobbyCode).emit("waiting for other player", waiting);
+      console.log("waiting for player" + waiting);
     }
   });
 
@@ -174,6 +191,14 @@ io.on("connection", (socket) => {
       return 1;
     } else {
       return 2;
+    }
+  }
+
+  function gameOverCheck(score, first2) {
+    if (score == first2) {
+      return true;
+    } else {
+      return false;
     }
   }
 });
