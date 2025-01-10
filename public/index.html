@@ -42,7 +42,7 @@
       <button id="backToMenuButton">← Back</button>
     </div>
 
-    <div id="spDisplay">
+    <div id="spDisplay" style="display: none">
       <div id="gameDisplay">
         <h1 id="titleText"></h1>
         <div id="scoreBar">
@@ -144,7 +144,7 @@
         type="text"
         name="lobbyCodeInput"
         id="lobbyCodeInput"
-        placeholder="Enter game code"
+        placeholder="Lobby code"
       /><br />
       <button id="joinButton">Join</button><br />
       <button id="hostMenuButton">Host</button><br />
@@ -208,6 +208,12 @@
       <h3 id="firstToText">First to</h3>
       <h3 id="mpTimerSettingText">Timer:</h3>
       <button id="backToMpMenuButtonFromWaiting">← Back</button>
+    </div>
+
+    <div id="rematchDisplay" style="display: none">
+      <h2>Rematch</h2>
+      <button id="rematchAcceptButton">Accept</button>
+      <button id="rematchDeclineButton">Decline</button>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="mp.js"></script>

@@ -23,6 +23,7 @@ const timerSelectMp = document.getElementById("timerSelectMp");
 const waitingDisplay = document.getElementById("waitingDisplay");
 const mpDisplay = document.getElementById("mpDisplay");
 const gameOverModalMp = document.getElementById("gameOverModalMp");
+const rematchDisplay = document.getElementById("rematchDisplay");
 
 //image
 
@@ -39,6 +40,10 @@ const backToMenuButtonFromLobby = document.getElementById(
 const backToMenuButtonFromMpGame = document.getElementById(
   "backToMenuButtonFromMpGame"
 );
+
+const replayButtonMp = document.getElementById("replayButtonMp");
+const rematchAcceptButton = document.getElementById("rematchAcceptButton");
+const rematchDeclineButton = document.getElementById("rematchDeclineButton");
 
 //
 let player1Choice = 0;
@@ -119,18 +124,28 @@ joinButton.addEventListener("click", (event) => {
   socket.emit("connect to lobby", lobbyCode);
 });
 
+function mpReset() {
+  player2ScoreText.textContent = "0";
+  player1ScoreText.textContent = "0";
+  player1ChoiceImg.src = "/images/p.png";
+  player2ChoiceImg.src = "/images/p.png";
+}
+
 socket.on("lobby check", (status, players, drops, timer) => {
   alert(status);
   if (players === 2) {
+    mpReset();
     mpMenu.style.display = "none";
     waitingDisplay.style.display = "none";
     mpDisplay.style.display = "grid";
     gameTimer = timer;
+
     startGame(drops, timer);
   }
 });
 
 function startGame(first2, tSetting) {
+  mpReset();
   hostCheckText.textContent = "HOST: " + isHost + " LOBBY: " + gameCode;
   mpTitleText.textContent = `First to ${first2}`;
   if (tSetting == "off") {
@@ -320,6 +335,72 @@ socket.on("result", (result, player1, player1score, player2, player2score) => {
   player1ScoreText.textContent = player1score;
   player2ScoreText.textContent = player2score;
 });
+
+replayButtonMp.addEventListener("click", (event) => {
+  let player = 0;
+  if (isHost === true) {
+    player = 1;
+    socket.emit("rematch request", gameCode, player);
+  } else {
+    player = 2;
+    socket.emit("rematch request", gameCode, player);
+  }
+});
+
+socket.on("display rematch request", (player) => {
+  if (player === 1) {
+    if (isHost === false) {
+      rematchDisplay.style.display = "block";
+    }
+  } else {
+    if (isHost === true) {
+      rematchDisplay.style.display = "block";
+    }
+  }
+});
+
+rematchDeclineButton.addEventListener("click", (event) => {
+  let player = 0;
+  if (isHost === true) {
+    player = 1;
+    socket.emit("rematch decline", gameCode, player);
+  } else {
+    player = 2;
+    socket.emit("rematch decline", gameCode, player);
+  }
+});
+
+socket.on("rematch request denied", (player) => {
+  if (player === 1) {
+    if (isHost === false) {
+      alert("Other player declined the rematch request!");
+      mpDisplay.style.display = "none";
+      rematchDisplay.style.display = "none";
+      gameOverModalMp.style.display = "none";
+      mainMenu.style.display = "grid";
+    } else {
+      mpDisplay.style.display = "none";
+      rematchDisplay.style.display = "none";
+      gameOverModalMp.style.display = "none";
+      mainMenu.style.display = "grid";
+    }
+  } else {
+    if (isHost === true) {
+      alert("Other player declined the rematch request!");
+      mpDisplay.style.display = "none";
+      rematchDisplay.style.display = "none";
+      gameOverModalMp.style.display = "none";
+      mainMenu.style.display = "grid";
+    } else {
+      mpDisplay.style.display = "none";
+      rematchDisplay.style.display = "none";
+      gameOverModalMp.style.display = "none";
+      mainMenu.style.display = "grid";
+    }
+  }
+  isHost = false;
+});
+rematchAcceptButton.addEventListener("click", (event) => {});
 
 socket.on("players online", (count) => {
   console.log("Players online:", count);

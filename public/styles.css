@@ -193,3 +193,20 @@ body.modal-active {
   display: grid;
   place-items: center;
 }
+
+#rematchDisplay {
+  position: absolute;
+  background-color: white;
+  top: 10%;
+  left: 40%;
+  margin-top: -10px;
+  margin-left: -50px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  border: solid rgb(255, 0, 0);
+  z-index: 1000;
+}
+
+#lobbyCodeInput::placeholder {
+  font-size: 45px;
+}

@@ -201,6 +201,26 @@ io.on("connection", (socket) => {
       return false;
     }
   }
+
+  socket.on("rematch request", (lobbyCode, player) => {
+    console.log(
+      "Rematch request by player" + player + " for " + lobbyCode + " lobby"
+    );
+
+    io.to(lobbyCode).emit("display rematch request", player);
+  });
+
+  socket.on("rematch decline", (lobbyCode, player) => {
+    io.to(lobbyCode).emit("rematch request denied", player);
+
+    lobbies.delete(lobbyCode);
+    console.log(lobbies.size + " left");
+
+    lobbies.forEach((lobby, lobbyCode) => {
+      console.log("Lobby: " + lobbyCode);
+      console.log("Lobby Details: " + JSON.stringify(lobby));
+    });
+  });
 });
 
 // Serve static files from the "public" directory
