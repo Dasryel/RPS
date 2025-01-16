@@ -210,88 +210,95 @@ io.on("connection", (socket) => {
     playerSelectionCounterForMpTimer += 1;
     const lobby = lobbies.get(lobbyCode);
 
-    if (player === 1) {
-      lobby.player1Choice = choice;
-      console.log("GOT PLAYER 1");
-    } else {
-      lobby.player2Choice = choice;
-      console.log("GOT PLAYER 2");
-    }
-    if (
-      (lobby.player1Choice && lobby.player2Choice) ||
-      lobby.getResult === false
-    ) {
-      lobby.gotResult = true;
-      const result = getResult(lobby.player1Choice, lobby.player2Choice);
+    if (lobbyCode) {
+      if (player === 1) {
+        lobby.player1Choice = choice;
+        console.log("GOT PLAYER 1");
+      } else {
+        lobby.player2Choice = choice;
+        console.log("GOT PLAYER 2");
+      }
+      if (
+        (lobby.player1Choice && lobby.player2Choice) ||
+        lobby.getResult === false
+      ) {
+        lobby.gotResult = true;
+        const result = getResult(lobby.player1Choice, lobby.player2Choice);
 
-      if (result === 1) {
-        lobby.player1Score++;
-        if (gameOverCheck(lobby.player1Score, lobby.drops, lobbyCode) == true) {
-          io.to(lobbyCode).emit(
-            "game over",
-            lobby.player1Score,
-            lobby.player2Score,
-            1
-          );
-          return;
+        if (result === 1) {
+          lobby.player1Score++;
+          if (
+            gameOverCheck(lobby.player1Score, lobby.drops, lobbyCode) == true
+          ) {
+            io.to(lobbyCode).emit(
+              "game over",
+              lobby.player1Score,
+              lobby.player2Score,
+              1
+            );
+            return;
+          }
+        } else if (result === 2) {
+          lobby.player2Score++;
+          if (
+            gameOverCheck(lobby.player2Score, lobby.drops, lobbyCode) == true
+          ) {
+            io.to(lobbyCode).emit(
+              "game over",
+              lobby.player1Score,
+              lobby.player2Score,
+              2
+            );
+            return;
+          }
         }
-      } else if (result === 2) {
-        lobby.player2Score++;
-        if (gameOverCheck(lobby.player2Score, lobby.drops, lobbyCode) == true) {
-          io.to(lobbyCode).emit(
-            "game over",
-            lobby.player1Score,
-            lobby.player2Score,
-            2
-          );
-          return;
+
+        io.to(lobbyCode).emit(
+          "result timer",
+          result,
+          lobby.player1Choice,
+          lobby.player1Score,
+          lobby.player2Choice,
+          lobby.player2Score,
+          lobby.timer
+        );
+        /*
+        if (lobby.timer !== "off") {
+          setTimeout(test, 1000); // Pass the function reference, not the call
         }
+
+        function test() {
+          lobby.timerCreated = false;
+          mpTimerCheck(lobbyCode, lobby.duration);
+        }
+        */
+
+        /*  console.log(
+          `LOBBY: ${lobbyCode} RESULT --> ${result}  player1 chose ${lobby.player1Choice}, score: ${lobby.player1Score} player2 chose ${lobby.player2Choice}, score: ${lobby.player2Score}`
+        );*/
+
+        lobby.player1Choice = 0;
+        lobby.player2Choice = 0;
+        playerSelectionCounterForMpTimer = 0;
+        lobby.gotResult = false;
+      } else {
+        //  console.log("Waiting for both player selection to arrive");
+        /* console.log(
+          "playerSelectionCounterForMpTimer:" + playerSelectionCounterForMpTimer
+        );
+        console.log("lobby.gotResult" + lobby.gotResult);
+        */
+
+        let waiting = 0;
+        if (lobby.player1Choice === 0) {
+          waiting = 1;
+        } else if (lobby.player2Choice === 0) {
+          waiting = 2;
+        }
+        io.to(lobbyCode).emit("waiting for other player with timer", waiting);
+        console.log("waiting for player" + waiting);
+        waiting = 0;
       }
-
-      io.to(lobbyCode).emit(
-        "result timer",
-        result,
-        lobby.player1Choice,
-        lobby.player1Score,
-        lobby.player2Choice,
-        lobby.player2Score,
-        lobby.timer
-      );
-
-      if (lobby.timer !== "off") {
-        setTimeout(test, 1000); // Pass the function reference, not the call
-      }
-
-      function test() {
-        lobby.timerCreated = false;
-        mpTimerCheck(lobbyCode, lobby.duration);
-      }
-
-      /*  console.log(
-        `LOBBY: ${lobbyCode} RESULT --> ${result}  player1 chose ${lobby.player1Choice}, score: ${lobby.player1Score} player2 chose ${lobby.player2Choice}, score: ${lobby.player2Score}`
-      );*/
-
-      lobby.player1Choice = 0;
-      lobby.player2Choice = 0;
-      playerSelectionCounterForMpTimer = 0;
-      lobby.gotResult = false;
-    } else {
-      //  console.log("Waiting for both player selection to arrive");
-      /* console.log(
-        "playerSelectionCounterForMpTimer:" + playerSelectionCounterForMpTimer
-      );
-      console.log("lobby.gotResult" + lobby.gotResult);
-      */
-
-      let waiting = 0;
-      if (lobby.player1Choice === 0) {
-        waiting = 1;
-      } else if (lobby.player2Choice === 0) {
-        waiting = 2;
-      }
-      io.to(lobbyCode).emit("waiting for other player with timer", waiting);
-      console.log("waiting for player" + waiting);
-      waiting = 0;
     }
   });
 

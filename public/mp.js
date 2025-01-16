@@ -237,15 +237,21 @@ socket.on("waiting for other player", (waiting) => {
 
 socket.on("waiting for other player with timer", (waiting) => {
   if (waiting === 1) {
-    mpTimerText.textContent = "We are waiting for player1";
     if (isHost === true) {
+      player1ChoiceImg.src = "/images/p.png";
       player2ChoiceImg.src = "/images/q.png";
+    } else {
+      player1ChoiceImg.src = "/images/p.png";
     }
+    socket.emit("start timer", gameCode, gameTimer);
   } else {
-    mpTimerText.textContent = "We are waiting for player2";
     if (isHost === false) {
       player1ChoiceImg.src = "/images/q.png";
+      player2ChoiceImg.src = "/images/p.png";
+    } else {
+      player2ChoiceImg.src = "/images/p.png";
     }
+    socket.emit("start timer", gameCode, gameTimer);
   }
 });
 
@@ -479,8 +485,8 @@ function startGame(first2, timer) {
   if (timer == "off") {
     mpTimerText.textContent = `FIGHT!`;
   } else {
-    socket.emit("start timer", gameCode, timer);
+    // socket.emit("start timer", gameCode, timer);
 
-    mpTimerText.textContent = `Starting timer...`;
+    mpTimerText.textContent = `Timer starts when a player chooses piece...`;
   }
 }
