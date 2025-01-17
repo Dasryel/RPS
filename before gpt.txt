@@ -186,3 +186,109 @@ function getResult(player1, player2) {
     player1Choice = 0;
     player2Choice = 0;
   }
+
+
+
+mp selection with keydown bug:
+
+function mpSelection(element) {
+  if (isHost === true) {
+    player1ChoiceImg.src = element;
+  } else {
+    player2ChoiceImg.src = element;
+  }
+  switch (element) {
+    case "/images/rock.png":
+      if (isHost === true) {
+        player1Choice = 1;
+      } else {
+        player2Choice = 1;
+      }
+      break;
+
+    case "/images/paper.png":
+      if (isHost === true) {
+        player1Choice = 2;
+      } else {
+        player2Choice = 2;
+      }
+      break;
+
+    case "/images/scissors.png":
+      if (isHost === true) {
+        player1Choice = 3;
+      } else {
+        player2Choice = 3;
+      }
+      break;
+  }
+  test1.textContent = "player1: " + player1Choice;
+  test2.textContent = "player2: " + player2Choice;
+
+  if (gameTimer == "off") {
+    if (isHost === true) {
+      socket.emit("check result", gameCode, 1, player1Choice);
+    } else {
+      socket.emit("check result", gameCode, 2, player2Choice);
+    }
+  } else {
+    if (isHost === true) {
+      socket.emit("send player selection timer", gameCode, 1, player1Choice);
+    } else {
+      socket.emit("send player selection timer", gameCode, 2, player2Choice);
+    }
+  }
+}
+
+document.addEventListener("keydown", (event) => {
+  switch (event.code) {
+    case "Numpad1":
+      if (isHost === true) {
+        player1Choice = 1;
+        player1ChoiceImg.src = getPicture(1);
+      } else {
+        player2Choice = 1;
+        player2ChoiceImg.src = getPicture(1);
+      }
+      break;
+
+    case "Numpad2":
+      if (isHost === true) {
+        player1Choice = 2;
+        player1ChoiceImg.src = getPicture(2);
+      } else {
+        player2Choice = 2;
+        player2ChoiceImg.src = getPicture(2);
+      }
+      break;
+
+    case "Numpad3":
+      if (isHost === true) {
+        player1Choice = 3;
+        player1ChoiceImg.src = getPicture(3);
+      } else {
+        player2Choice = 3;
+        player2ChoiceImg.src = getPicture(3);
+      }
+
+    default:
+      break;
+  }
+  test1.textContent = "player1: " + player1Choice;
+  test2.textContent = "player2: " + player2Choice;
+  /*
+  if (gameTimer == "off") {
+    if (isHost === true) {
+      socket.emit("check result", gameCode, 1, player1Choice);
+    } else {
+      socket.emit("check result", gameCode, 2, player2Choice);
+    }
+  } else {
+    if (isHost === true) {
+      socket.emit("send player selection timer", gameCode, 1, player1Choice);
+    } else {
+      socket.emit("send player selection timer", gameCode, 2, player2Choice);
+    }
+  }
+  */
+});

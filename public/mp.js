@@ -89,16 +89,23 @@ hostButton.addEventListener("click", (event) => {
 
   codeText.textContent = "Game Code: " + randomNumber;
   firstToText.textContent = "First to " + firstTo;
+  console.log("TIMER: TYPE");
+  console.log(typeof timerMpSetting);
   if (timerMpSetting === "off") {
     mpTimerSettingText.textContent = "Timer: OFF";
   } else {
-    mpTimerSettingText.textContent = "Timer: " + timerMpSetting + " seconds";
+    const seconds = Number(timerMpSetting) - 1;
+
+    mpTimerSettingText.textContent = "Timer: " + seconds + " seconds";
   }
   hostTimerCheck = setInterval(function () {
     socket.emit("lobby check for player", hostLobbyCode);
-  }, 3000);
+  }, 1000);
 });
 
+socket.on("destroy timer", () => {
+  clearInterval(hostTimerCheck);
+});
 socket.on("game can be started", () => {
   clearInterval(hostTimerCheck);
   gameTimer = timerMpSetting;
@@ -111,7 +118,6 @@ socket.on("game can be started", () => {
 
 backToMpMenuButtonFromWaiting.addEventListener("click", (event) => {
   console.log("Destroying lobby with code:", hostLobbyCode);
-  mpSettings.style.display = "grid";
   waitingDisplay.style.display = "none";
   socket.emit("destroy lobby", hostLobbyCode);
 });
@@ -164,37 +170,15 @@ function getPicture(pic) {
   }
 }
 
-function mpSelection(element) {
+function processSelection(choice) {
   if (isHost === true) {
-    player1ChoiceImg.src = element;
+    player1Choice = choice;
+    player1ChoiceImg.src = getPicture(choice);
   } else {
-    player2ChoiceImg.src = element;
+    player2Choice = choice;
+    player2ChoiceImg.src = getPicture(choice);
   }
-  switch (element) {
-    case "/images/rock.png":
-      if (isHost === true) {
-        player1Choice = 1;
-      } else {
-        player2Choice = 1;
-      }
-      break;
 
-    case "/images/paper.png":
-      if (isHost === true) {
-        player1Choice = 2;
-      } else {
-        player2Choice = 2;
-      }
-      break;
-
-    case "/images/scissors.png":
-      if (isHost === true) {
-        player1Choice = 3;
-      } else {
-        player2Choice = 3;
-      }
-      break;
-  }
   test1.textContent = "player1: " + player1Choice;
   test2.textContent = "player2: " + player2Choice;
 
@@ -206,11 +190,47 @@ function mpSelection(element) {
     }
   } else {
     if (isHost === true) {
-      socket.emit("check result timer", gameCode, 1, player1Choice);
+      socket.emit("send player selection timer", gameCode, 1, player1Choice);
     } else {
-      socket.emit("check result timer", gameCode, 2, player2Choice);
+      socket.emit("send player selection timer", gameCode, 2, player2Choice);
     }
   }
+}
+
+document.addEventListener("keydown", (event) => {
+  switch (event.code) {
+    case "Numpad1":
+      processSelection(1);
+      break;
+    case "Numpad2":
+      processSelection(2);
+      break;
+    case "Numpad3":
+      processSelection(3);
+      break;
+    default:
+      break;
+  }
+});
+
+function mpSelection(element) {
+  let choice = 0;
+
+  switch (element) {
+    case "/images/rock.png":
+      choice = 1;
+      break;
+    case "/images/paper.png":
+      choice = 2;
+      break;
+    case "/images/scissors.png":
+      choice = 3;
+      break;
+    default:
+      return;
+  }
+
+  processSelection(choice);
 }
 
 socket.on("waiting for other player", (waiting) => {
@@ -243,7 +263,6 @@ socket.on("waiting for other player with timer", (waiting) => {
     } else {
       player1ChoiceImg.src = "/images/p.png";
     }
-    socket.emit("start timer", gameCode, gameTimer);
   } else {
     if (isHost === false) {
       player1ChoiceImg.src = "/images/q.png";
@@ -251,7 +270,14 @@ socket.on("waiting for other player with timer", (waiting) => {
     } else {
       player2ChoiceImg.src = "/images/p.png";
     }
-    socket.emit("start timer", gameCode, gameTimer);
+  }
+});
+
+socket.on("both parties have selected", () => {
+  if (isHost === true) {
+    player2ChoiceImg.src = "/images/q.png";
+  } else {
+    player1ChoiceImg.src = "/images/q.png";
   }
 });
 
@@ -275,7 +301,6 @@ function displayGameOver(player1Score, player2Score, result) {
   resultTextMp.textContent = result;
   scoreTextMp.textContent = `${player1Score}-${player2Score}`;
 
-  // Show modal
   gameOverModalMp.style.display = "flex";
   document.body.classList.add("modal-active");
 }
@@ -375,7 +400,7 @@ rematchDeclineButton.addEventListener("click", (event) => {
   }
 });
 
-socket.on("rematch request denied", (player) => {
+socket.on("rematch request rejected", (player) => {
   if (player === 1) {
     if (isHost === false) {
       alert("Other player declined the rematch request!");
@@ -400,39 +425,6 @@ socket.on("force leave", () => {
   isHost = false;
 });
 
-/*
-socket.on("rematch request denied", (player) => {
-  if (player === 1) {
-    if (isHost === false) {
-      alert("Other player declined the rematch request!");
-      mpDisplay.style.display = "none";
-      rematchDisplay.style.display = "none";
-      gameOverModalMp.style.display = "none";
-      mainMenu.style.display = "grid";
-    } else {
-      mpDisplay.style.display = "none";
-      rematchDisplay.style.display = "none";
-      gameOverModalMp.style.display = "none";
-      mainMenu.style.display = "grid";
-    }
-  } else {
-    if (isHost === true) {
-      alert("Other player declined the rematch request!");
-      mpDisplay.style.display = "none";
-      rematchDisplay.style.display = "none";
-      gameOverModalMp.style.display = "none";
-      mainMenu.style.display = "grid";
-    } else {
-      mpDisplay.style.display = "none";
-      rematchDisplay.style.display = "none";
-      gameOverModalMp.style.display = "none";
-      mainMenu.style.display = "grid";
-    }
-  }
-  isHost = false;
-});
-
-*/
 rematchAcceptButton.addEventListener("click", (event) => {
   socket.emit("rematch", gameCode);
 });
@@ -460,24 +452,6 @@ socket.on("timer started", (timer, status) => {
   mpTimerText.textContent = timer + status;
 });
 
-socket.on("time is up", () => {
-  if (isHost === true) {
-    if (player1Choice === 0) {
-      player1Choice = Math.floor(Math.random() * 3) + 1;
-      player1ChoiceImg.src = getPicture(player1Choice);
-      console.log("randomized for player1 : " + player1Choice);
-    }
-    socket.emit("check result timer", gameCode, 1, player1Choice);
-  } else {
-    if (player2Choice === 0) {
-      player2Choice = Math.floor(Math.random() * 3) + 1;
-      player2ChoiceImg.src = getPicture(player2Choice);
-      console.log("randomized for player2 : " + player2Choice);
-    }
-    socket.emit("check result timer", gameCode, 2, player2Choice);
-  }
-});
-
 function startGame(first2, timer) {
   mpReset();
   hostCheckText.textContent = "HOST: " + isHost + " LOBBY: " + gameCode;
@@ -485,8 +459,18 @@ function startGame(first2, timer) {
   if (timer == "off") {
     mpTimerText.textContent = `FIGHT!`;
   } else {
-    // socket.emit("start timer", gameCode, timer);
-
     mpTimerText.textContent = `Timer starts when a player chooses piece...`;
   }
 }
+
+socket.on("random selection", (player, choice) => {
+  if (player === 1) {
+    if (isHost === true) {
+      player1ChoiceImg.src = getPicture(choice);
+    }
+  } else {
+    if (isHost === false) {
+      player2ChoiceImg.src = getPicture(choice);
+    }
+  }
+});

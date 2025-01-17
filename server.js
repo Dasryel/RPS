@@ -9,13 +9,6 @@ const io = new Server(server);
 
 let playersOnline = 0;
 
-/*
-let player1Choice = 0;
-let player2Choice = 0;
-
-let player1Score = 0;
-let player2Score = 0;
-*/
 const lobbyTimers = new Map();
 const lobbies = new Map();
 let playerSelectionCounterForMpTimer = 0;
@@ -24,7 +17,6 @@ io.on("connection", (socket) => {
   playersOnline++;
   console.log("A user connected. Players online:", playersOnline);
 
-  // Emit the updated players count
   io.emit("players online", playersOnline);
 
   socket.on("disconnect", () => {
@@ -32,7 +24,7 @@ io.on("connection", (socket) => {
     console.log("A user disconnected. Players online:", playersOnline);
     io.emit("players online", playersOnline);
 
-    const lobbyCode = socket.lobbyCode; // Retrieve the lobby code
+    const lobbyCode = socket.lobbyCode;
     if (lobbyCode) {
       console.log(
         "Player " + socket.id + " disconnected from lobby: " + lobbyCode
@@ -40,6 +32,7 @@ io.on("connection", (socket) => {
       io.to(lobbyCode).emit("force leave");
       console.log(lobbyCode + " lobby destroyed");
       lobbies.delete(lobbyCode);
+      socket.emit("destroy timer");
       console.log(lobbies.size + " left");
 
       lobbies.forEach((lobby, lobbyCode) => {
@@ -107,7 +100,7 @@ io.on("connection", (socket) => {
       console.log("game can be started!");
       socket.emit("game can be started");
     } else {
-      console.log("not enough players");
+      console.log(code + " LOBBY CHECK: not enough players");
     }
   });
 
@@ -206,99 +199,36 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("check result timer", (lobbyCode, player, choice) => {
-    playerSelectionCounterForMpTimer += 1;
+  socket.on("send player selection timer", (lobbyCode, player, choice) => {
     const lobby = lobbies.get(lobbyCode);
+    if (!lobby) {
+      return;
+    }
+    if (lobby.timerCreated === false) {
+      mpTimerCheck(lobbyCode, lobby.duration);
+    }
 
-    if (lobbyCode) {
-      if (player === 1) {
-        lobby.player1Choice = choice;
-        console.log("GOT PLAYER 1");
-      } else {
-        lobby.player2Choice = choice;
-        console.log("GOT PLAYER 2");
+    if (player === 1) {
+      lobby.player1Choice = choice;
+      console.log("GOT PLAYER 1");
+    } else {
+      lobby.player2Choice = choice;
+      console.log("GOT PLAYER 2");
+    }
+
+    if (lobby.player1Choice && lobby.player2Choice) {
+      console.log("both oparties have selceted");
+      io.to(lobbyCode).emit("both parties have selected");
+    } else {
+      let waiting = 0;
+      if (lobby.player1Choice === 0) {
+        waiting = 1;
+      } else if (lobby.player2Choice === 0) {
+        waiting = 2;
       }
-      if (
-        (lobby.player1Choice && lobby.player2Choice) ||
-        lobby.getResult === false
-      ) {
-        lobby.gotResult = true;
-        const result = getResult(lobby.player1Choice, lobby.player2Choice);
-
-        if (result === 1) {
-          lobby.player1Score++;
-          if (
-            gameOverCheck(lobby.player1Score, lobby.drops, lobbyCode) == true
-          ) {
-            io.to(lobbyCode).emit(
-              "game over",
-              lobby.player1Score,
-              lobby.player2Score,
-              1
-            );
-            return;
-          }
-        } else if (result === 2) {
-          lobby.player2Score++;
-          if (
-            gameOverCheck(lobby.player2Score, lobby.drops, lobbyCode) == true
-          ) {
-            io.to(lobbyCode).emit(
-              "game over",
-              lobby.player1Score,
-              lobby.player2Score,
-              2
-            );
-            return;
-          }
-        }
-
-        io.to(lobbyCode).emit(
-          "result timer",
-          result,
-          lobby.player1Choice,
-          lobby.player1Score,
-          lobby.player2Choice,
-          lobby.player2Score,
-          lobby.timer
-        );
-        /*
-        if (lobby.timer !== "off") {
-          setTimeout(test, 1000); // Pass the function reference, not the call
-        }
-
-        function test() {
-          lobby.timerCreated = false;
-          mpTimerCheck(lobbyCode, lobby.duration);
-        }
-        */
-
-        /*  console.log(
-          `LOBBY: ${lobbyCode} RESULT --> ${result}  player1 chose ${lobby.player1Choice}, score: ${lobby.player1Score} player2 chose ${lobby.player2Choice}, score: ${lobby.player2Score}`
-        );*/
-
-        lobby.player1Choice = 0;
-        lobby.player2Choice = 0;
-        playerSelectionCounterForMpTimer = 0;
-        lobby.gotResult = false;
-      } else {
-        //  console.log("Waiting for both player selection to arrive");
-        /* console.log(
-          "playerSelectionCounterForMpTimer:" + playerSelectionCounterForMpTimer
-        );
-        console.log("lobby.gotResult" + lobby.gotResult);
-        */
-
-        let waiting = 0;
-        if (lobby.player1Choice === 0) {
-          waiting = 1;
-        } else if (lobby.player2Choice === 0) {
-          waiting = 2;
-        }
-        io.to(lobbyCode).emit("waiting for other player with timer", waiting);
-        console.log("waiting for player" + waiting);
-        waiting = 0;
-      }
+      io.to(lobbyCode).emit("waiting for other player with timer", waiting);
+      console.log("waiting for player" + waiting);
+      waiting = 0;
     }
   });
 
@@ -337,42 +267,25 @@ io.on("connection", (socket) => {
   });
 
   socket.on("rematch decline", (lobbyCode, player) => {
-    io.to(lobbyCode).emit("rematch request denied", player);
-
-    lobbies.delete(lobbyCode);
-    console.log(lobbies.size + " left");
-
-    lobbies.forEach((lobby, lobbyCode) => {
-      console.log("Lobby: " + lobbyCode);
-      console.log("Lobby Details: " + JSON.stringify(lobby));
-    });
+    io.to(lobbyCode).emit("rematch request rejected", player);
   });
 
   socket.on("rematch", (gameCode) => {
-    // console.log("Before update:", lobbies.get(gameCode));
-
     const lobbyData = lobbies.get(gameCode);
-    lobbyData.player1Choice = 0;
-    lobbyData.player2Choice = 0;
-    lobbyData.player1Score = 0;
-    lobbyData.player2Score = 0;
-    lobbyData.gameOver = false;
-    lobbyData.timerCreated = false;
-    lobbyData.gotResult = false;
+    if (lobbyData) {
+      lobbyData.player1Choice = 0;
+      lobbyData.player2Choice = 0;
+      lobbyData.player1Score = 0;
+      lobbyData.player2Score = 0;
+      lobbyData.gameOver = false;
+      lobbyData.timerCreated = false;
+      lobbyData.gotResult = false;
 
-    playerSelectionCounterForMpTimer = 0;
+      playerSelectionCounterForMpTimer = 0;
 
-    lobbies.set(gameCode, lobbyData);
-
+      lobbies.set(gameCode, lobbyData);
+    }
     io.to(gameCode).emit("rematch start");
-
-    //console.log("After update:", lobbies.get(gameCode));
-  });
-
-  socket.on("start timer", (gameCode, timer) => {
-    const lobby = lobbies.get(gameCode);
-
-    mpTimerCheck(gameCode, timer);
   });
 
   function mpTimerCheck(lobbyCode, sCounter) {
@@ -394,11 +307,60 @@ io.on("connection", (socket) => {
 
         if (sCounter === 0) {
           clearInterval(lobby.timer);
-          io.to(lobbyCode).emit("time is up");
+
+          if (lobby.player1Choice === 0) {
+            lobby.player1Choice = Math.floor(Math.random() * 3) + 1;
+            console.log("randomized for player1 : " + lobby.player1Choice);
+            io.to(lobbyCode).emit("random selection", 1, lobby.player1Choice);
+          } else if (lobby.player2Choice === 0) {
+            lobby.player2Choice = Math.floor(Math.random() * 3) + 1;
+            console.log("randomized for player2 : " + lobby.player2Choice);
+            io.to(lobbyCode).emit("random selection", 2, lobby.player2Choice);
+          }
+          const result = getResult(lobby.player1Choice, lobby.player2Choice);
+
+          if (result === 1) {
+            lobby.player1Score++;
+            if (
+              gameOverCheck(lobby.player1Score, lobby.drops, lobbyCode) == true
+            ) {
+              io.to(lobbyCode).emit(
+                "game over",
+                lobby.player1Score,
+                lobby.player2Score,
+                1
+              );
+              return;
+            }
+          } else if (result === 2) {
+            lobby.player2Score++;
+            if (
+              gameOverCheck(lobby.player2Score, lobby.drops, lobbyCode) == true
+            ) {
+              io.to(lobbyCode).emit(
+                "game over",
+                lobby.player1Score,
+                lobby.player2Score,
+                2
+              );
+              return;
+            }
+          }
+
+          io.to(lobbyCode).emit(
+            "result timer",
+            result,
+            lobby.player1Choice,
+            lobby.player1Score,
+            lobby.player2Choice,
+            lobby.player2Score,
+            lobby.timer
+          );
+          lobby.timerCreated = false;
         }
       }, 1000);
     } else {
-      console.log("Game already ended or timer exists for " + lobbyCode);
+      console.log("Gm:" + lobby.gameOver + " TIMER: " + lobby.timerCreated);
     }
   }
 });
