@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
     if (lobbies.has(code) && lobbies.get(code).players == 2) {
       console.log("game can be started!");
       socket.emit("game can be started");
-    } else {
+    } else if (lobbies.has(code)) {
       console.log(code + " LOBBY CHECK: not enough players");
     }
   });
@@ -108,9 +108,8 @@ io.on("connection", (socket) => {
     if (lobbies.has(code)) {
       const lobby = lobbies.get(code);
       socket.leave(code);
-      lobby.players -= 1;
-      lobbies.set(code, lobby);
-      console.log("Player left " + code + " lobby");
+      lobbies.delete(code);
+      socket.emit("destroy timer");
     }
   });
 
@@ -118,6 +117,7 @@ io.on("connection", (socket) => {
     io.to(code).emit("force leave");
     console.log(code + " lobby destroyed");
     lobbies.delete(code);
+    socket.emit("destroy timer");
     console.log(lobbies.size + " left");
 
     lobbies.forEach((lobby, lobbyCode) => {
