@@ -15,9 +15,17 @@ let playerSelectionCounterForMpTimer = 0;
 
 io.on("connection", (socket) => {
   playersOnline++;
-  console.log("A user connected. Players online:", playersOnline);
-
   io.emit("players online", playersOnline);
+  socket.emit("welcome", socket.id);
+
+  socket.on("joined", (username) => {
+    socket.username = username;
+    console.log(socket.username + " connected. Players online:", playersOnline);
+  });
+
+  socket.on("name change request", () => {
+    socket.emit("show name", socket.username);
+  });
 
   socket.on("disconnect", () => {
     playersOnline--;
@@ -59,6 +67,8 @@ io.on("connection", (socket) => {
       player2Choice: 0,
       player1Score: 0,
       player2Score: 0,
+      player1Name: socket.username,
+      player2Name: "",
     });
     console.log("Lobby created: " + code);
     console.log("First to: " + first2);
@@ -75,8 +85,13 @@ io.on("connection", (socket) => {
         lobby.players += 1;
         lobbies.set(code, lobby);
 
+        lobby.player2Name = socket.username;
+        lobbies.set(code, lobby);
+
+        console.log(lobby);
+
         console.log(
-          `Player joined lobby ${code}. Total players: ${lobby.players}`
+          `${socket.id} joined lobby ${code}. Total players: ${lobby.players}`
         );
         socket.emit(
           "lobby check",
@@ -152,6 +167,7 @@ io.on("connection", (socket) => {
 
       if (result === 1) {
         lobby.player1Score++;
+        //  io.to(lobbyCode).emit("game log", 1, lobby.player1Choice);
         if (gameOverCheck(lobby.player1Score, lobby.drops, lobbyCode) == true) {
           io.to(lobbyCode).emit(
             "game over",
@@ -162,6 +178,7 @@ io.on("connection", (socket) => {
         }
       } else if (result === 2) {
         lobby.player2Score++;
+        //    io.to(lobbyCode).emit("game log", 2, lobby.player2Choice);
         if (gameOverCheck(lobby.player2Score, lobby.drops, lobbyCode) == true) {
           io.to(lobbyCode).emit(
             "game over",
@@ -178,7 +195,9 @@ io.on("connection", (socket) => {
         lobby.player1Choice,
         lobby.player1Score,
         lobby.player2Choice,
-        lobby.player2Score
+        lobby.player2Score,
+        lobby.player1Name,
+        lobby.player2Name
       );
 
       console.log(
@@ -363,6 +382,12 @@ io.on("connection", (socket) => {
       console.log("Gm:" + lobby.gameOver + " TIMER: " + lobby.timerCreated);
     }
   }
+
+  socket.on("chat message", (lobby, msg) => {
+    console.log(socket.id + ": " + msg + " FROM " + lobby);
+    //io.emit("display main chat", msg);
+    io.to(lobby).emit("display chat", msg, socket.username);
+  });
 });
 
 // Serve static files from the "public" directory

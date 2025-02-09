@@ -7,6 +7,14 @@
   </head>
 
   <body>
+    <div id="welcomeDiv">
+      <div id="welcomeDivContent">
+        <h1 id="WDUsernameText">Username:</h1>
+        <input id="Username" type="text" maxlength="6" />
+        <button id="enterGameButton">Enter</button>
+      </div>
+    </div>
+
     <div id="mainMenu">
       <h1>Rock Paper Scissors</h1>
       <button id="spButton">Singleplayer</button>
@@ -80,6 +88,24 @@
     </div>
 
     <div id="mpDisplay" style="display: none">
+      <div id="lobbyChatContainer">
+        <div id="lobbyChatDisplay">
+          <ul id="chatLog"></ul>
+        </div>
+        <div id="lobbyChatInput">
+          <form id="ChatForm" action="">
+            <select name="channel" id="channel" disabled>
+              <option id="channelId">123</option>
+            </select>
+            <input
+              type="text"
+              id="chatMessage"
+              placeholder="Type a message..."
+            />
+            <button id="sendMessage">Send</button>
+          </form>
+        </div>
+      </div>
       <div id="mpGameDisplay">
         <h1 id="hostCheckText"></h1>
         <h1 id="mpTitleText"></h1>
@@ -114,9 +140,6 @@
           onclick='mpSelection("/images/scissors.png");'
         />
       </div>
-      <button id="backToMenuButtonFromLobby">← Back</button>
-      <p id="test1">player1:</p>
-      <p id="test2">player2:</p>
     </div>
 
     <div id="gameOverModal" class="modal" style="display: none">
@@ -180,6 +203,7 @@
 
     <div id="optionDisplay">
       <h2>Coming soon!</h2>
+      <button id="changeUsernameButton">Change username</button><br />
       <button id="backToMenuButton">← Back</button>
     </div>
 

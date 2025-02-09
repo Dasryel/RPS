@@ -10,11 +10,42 @@ const mpTimerText = document.getElementById("mpTimerText");
 const player2ScoreText = document.getElementById("player2ScoreText");
 const hostCheckText = document.getElementById("hostCheckText");
 
+//chat
+const chatMessage = document.getElementById("chatMessage");
+const ChatForm = document.getElementById("ChatForm");
+const sendMessage = document.getElementById("sendMessage");
+const chatLog = document.getElementById("chatLog");
+const chatLogUsername = document.getElementById("chatLogUsername");
+const channelId = document.getElementById("channelId");
+
+const welcomeDiv = document.getElementById("welcomeDiv");
+const Username = document.getElementById("Username");
+const enterGameButton = document.getElementById("enterGameButton");
+
+socket.on("display chat", (msg, id) => {
+  const item = document.createElement("li");
+
+  // Set text content with socket.id + message
+  item.textContent = id + ": " + msg;
+
+  chatLog.appendChild(item);
+  lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+});
+
+ChatForm.addEventListener("submit", (event) => {
+  event.preventDefault(); // Prevent form submission refresh
+
+  if (chatMessage.value.trim()) {
+    console.log(chatMessage.value);
+    socket.emit("chat message", gameCode, chatMessage.value);
+    chatMessage.value = ""; // Clear input after sending
+  } else {
+    alert("Message box is empty!");
+  }
+});
+
 const resultTextMp = document.getElementById("resultTextMp");
 const scoreTextMp = document.getElementById("scoreTextMp");
-
-const test1 = document.getElementById("test1");
-const test2 = document.getElementById("test2");
 
 const dropsInputMp = document.getElementById("dropsInputMp");
 const timerSelectMp = document.getElementById("timerSelectMp");
@@ -44,6 +75,7 @@ const backToMenuButtonFromMpGame = document.getElementById(
 const replayButtonMp = document.getElementById("replayButtonMp");
 const rematchAcceptButton = document.getElementById("rematchAcceptButton");
 const rematchDeclineButton = document.getElementById("rematchDeclineButton");
+const changeUsernameButton = document.getElementById("changeUsernameButton");
 
 //
 let player1Choice = 0;
@@ -75,7 +107,7 @@ hostButton.addEventListener("click", (event) => {
   randomNumber = Math.floor(100000 + Math.random() * 900000);
   hostLobbyCode = randomNumber;
   gameCode = hostLobbyCode;
-
+  channelId.textContent = gameCode;
   isHost = true;
   firstTo = dropsInputMp.value;
   timerMpSetting = timerSelectMp.value;
@@ -122,15 +154,16 @@ backToMpMenuButtonFromWaiting.addEventListener("click", (event) => {
   socket.emit("destroy lobby", hostLobbyCode);
 });
 
-backToMenuButtonFromLobby.addEventListener("click", (event) => {
+/*backToMenuButtonFromLobby.addEventListener("click", (event) => {
   mpDisplay.style.display = "none";
   mpMenu.style.display = "none";
   socket.emit("destroy lobby", gameCode);
 });
-
+*/
 joinButton.addEventListener("click", (event) => {
   lobbyCode = parseInt(lobbyCodeInput.value, 10);
   gameCode = lobbyCode;
+  channelId.textContent = gameCode;
   socket.emit("connect to lobby", lobbyCode);
 });
 
@@ -178,9 +211,6 @@ function processSelection(choice) {
     player2Choice = choice;
     player2ChoiceImg.src = getPicture(choice);
   }
-
-  test1.textContent = "player1: " + player1Choice;
-  test2.textContent = "player2: " + player2Choice;
 
   if (gameTimer == "off") {
     if (isHost === true) {
@@ -311,32 +341,101 @@ backToMenuButtonFromMpGame.addEventListener("click", (event) => {
   mainMenu.style.display = "grid";
   mpDisplay.style.display = "none";
   gameOverModalMp.style.display = "none";
+  document.getElementById("chatLog").innerHTML = "";
 });
 
-socket.on("result", (result, player1, player1score, player2, player2score) => {
-  if (isHost === true) {
-    if (result === 0) {
-      mpTimerText.textContent = "Draw!";
-    } else if (result === 1) {
-      mpTimerText.textContent = "You won!";
-    } else {
-      mpTimerText.textContent = "You lost!";
-    }
-    player2ChoiceImg.src = getPicture(player2);
-  } else {
-    if (result === 0) {
-      mpTimerText.textContent = "Draw!";
-    } else if (result === 1) {
-      mpTimerText.textContent = "You lost!";
-    } else {
-      mpTimerText.textContent = "You won!";
-    }
-    player1ChoiceImg.src = getPicture(player1);
+function getWinPicture(pic) {
+  switch (pic) {
+    case 1:
+      return "/images/rockwin.png";
+    case 2:
+      return "/images/paperwin.png";
+    case 3:
+      return "/images/scissorswin.png";
   }
+}
 
-  player1ScoreText.textContent = player1score;
-  player2ScoreText.textContent = player2score;
-});
+socket.on(
+  "result",
+  (
+    result,
+    player1,
+    player1score,
+    player2,
+    player2score,
+    player1name,
+    player2name
+  ) => {
+    const log = document.createElement("li");
+    const player1Text = document.createElement("span");
+    const winImage = document.createElement("img");
+    const player2Text = document.createElement("span");
+    let winType;
+    if (result === 0) {
+      log.textContent = "DRAW!";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+    } else if (result === 1) {
+      player1Text.textContent = player1name;
+      player2Text.textContent = player2name;
+      winType = getWinPicture(player1);
+      winImage.src = winType;
+      winImage.className = "winImage";
+      if (isHost === true) {
+        log.style.backgroundColor = "green";
+      } else {
+        log.style.backgroundColor = "red";
+      }
+
+      log.appendChild(player1Text);
+      log.appendChild(winImage);
+      log.appendChild(player2Text);
+
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+    } else {
+      player1Text.textContent = player2name;
+      player2Text.textContent = player1name;
+      winType = getWinPicture(player2);
+      winImage.src = winType;
+      winImage.className = "winImage";
+
+      if (isHost === true) {
+        log.style.backgroundColor = "red";
+      } else {
+        log.style.backgroundColor = "green";
+      }
+      log.appendChild(player1Text);
+      log.appendChild(winImage);
+      log.appendChild(player2Text);
+
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+    }
+    if (isHost === true) {
+      if (result === 0) {
+        mpTimerText.textContent = "Draw!";
+      } else if (result === 1) {
+        mpTimerText.textContent = "You won!";
+      } else {
+        mpTimerText.textContent = "You lost!";
+      }
+      player2ChoiceImg.src = getPicture(player2);
+    } else {
+      if (result === 0) {
+        mpTimerText.textContent = "Draw!";
+      } else if (result === 1) {
+        mpTimerText.textContent = "You lost!";
+      } else {
+        mpTimerText.textContent = "You won!";
+      }
+      player1ChoiceImg.src = getPicture(player1);
+    }
+
+    player1ScoreText.textContent = player1score;
+    player2ScoreText.textContent = player2score;
+  }
+);
 
 socket.on(
   "result timer",
@@ -378,13 +477,30 @@ replayButtonMp.addEventListener("click", (event) => {
 });
 
 socket.on("display rematch request", (player) => {
+  const log = document.createElement("li");
+
   if (player === 1) {
     if (isHost === false) {
+      log.textContent = "Match request by other player!";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+
       rematchDisplay.style.display = "block";
+    } else {
+      log.textContent = "Request sent";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
     }
   } else {
     if (isHost === true) {
+      log.textContent = "Match request by other player!";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
       rematchDisplay.style.display = "block";
+    } else {
+      log.textContent = "Request sent";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
     }
   }
 });
@@ -401,15 +517,20 @@ rematchDeclineButton.addEventListener("click", (event) => {
 });
 
 socket.on("rematch request rejected", (player) => {
+  const log = document.createElement("li");
   if (player === 1) {
     if (isHost === false) {
-      alert("Other player declined the rematch request!");
+      log.textContent = "Match request denied!";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
     } else {
       rematchDisplay.style.display = "none";
     }
   } else {
     if (isHost === true) {
-      alert("Other player declined the rematch request!");
+      log.textContent = "Match request denied!";
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
     } else {
       rematchDisplay.style.display = "none";
     }
@@ -417,6 +538,7 @@ socket.on("rematch request rejected", (player) => {
 });
 
 socket.on("force leave", () => {
+  document.getElementById("chatLog").innerHTML = "";
   alert("Lobby has been destroyed!");
   mpDisplay.style.display = "none";
   rematchDisplay.style.display = "none";
@@ -438,6 +560,12 @@ socket.on("rematch start", () => {
     startGame(gameFirst2, gameTimer);
   }
 
+  const log = document.createElement("li");
+  log.textContent = "New match has begun!";
+
+  chatLog.append(log);
+  lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+
   mpDisplay.style.display = "grid";
   gameOverModalMp.style.display = "none";
   rematchDisplay.style.display = "none";
@@ -454,7 +582,7 @@ socket.on("timer started", (timer, status) => {
 
 function startGame(first2, timer) {
   mpReset();
-  hostCheckText.textContent = "HOST: " + isHost + " LOBBY: " + gameCode;
+  hostCheckText.textContent = "LOBBY: " + gameCode;
   mpTitleText.textContent = `First to ${first2}`;
   if (timer == "off") {
     mpTimerText.textContent = `FIGHT!`;
@@ -473,4 +601,27 @@ socket.on("random selection", (player, choice) => {
       player2ChoiceImg.src = getPicture(choice);
     }
   }
+});
+
+socket.on("welcome", (id) => {
+  let newId = id.slice(0, 6);
+  Username.placeholder = newId;
+  Username.value = newId;
+});
+
+enterGameButton.addEventListener("click", (event) => {
+  welcomeDiv.style.display = "none";
+
+  socket.emit("joined", Username.value);
+});
+
+changeUsernameButton.addEventListener("click", (event) => {
+  socket.emit("name change request");
+});
+
+socket.on("show name", (name) => {
+  welcomeDiv.style.display = "grid";
+
+  Username.placeholder = name;
+  Username.value = name;
 });
