@@ -62,11 +62,13 @@ let drops;
 let timerSpSetting;
 
 spButton.addEventListener("click", (event) => {
+  playSound("click");
   mainMenu.style.display = "none";
   spMenu.style.display = "grid";
 });
 
 startGameButton.addEventListener("click", (event) => {
+  playSound("click");
   drops = dropsInput.value;
   timerSpSetting = timerSelect.value;
 
@@ -84,12 +86,14 @@ startGameButton.addEventListener("click", (event) => {
 });
 
 backToSpMenuButton.addEventListener("click", (event) => {
+  playSound("back");
   clearInterval(timer);
   spMenu.style.display = "grid";
   spDisplay.style.display = "none";
 });
 
 changeSettingsButton.addEventListener("click", (event) => {
+  playSound("click");
   reset();
   spMenu.style.display = "grid";
   gameOverModal.style.display = "none";
@@ -98,6 +102,7 @@ changeSettingsButton.addEventListener("click", (event) => {
 });
 
 replayButton.addEventListener("click", (event) => {
+  playSound("click");
   drops = parseInt(dropsInput.value);
   timerSpSetting = timerSelect.value;
   reset();
@@ -108,26 +113,31 @@ replayButton.addEventListener("click", (event) => {
 });
 
 mpButton.addEventListener("click", (event) => {
+  playSound("click");
   mainMenu.style.display = "none";
   mpMenu.style.display = "block";
 });
 
 hostMenuButton.addEventListener("click", (event) => {
+  playSound("click");
   mpMenu.style.display = "none";
   mpSettings.style.display = "grid";
 });
 
 backToMpMenuButton.addEventListener("click", (event) => {
+  playSound("back");
   mpSettings.style.display = "none";
   mpMenu.style.display = "block";
 });
 
 optionButton.addEventListener("click", (event) => {
+  playSound("click");
   mainMenu.style.display = "none";
   optionDisplay.style.display = "block";
 });
 
 creditsButton.addEventListener("click", (event) => {
+  playSound("click");
   mainMenu.style.display = "none";
   creditsDisplay.style.display = "block";
 });
@@ -135,6 +145,7 @@ creditsButton.addEventListener("click", (event) => {
 // Reusing the same "Back to Menu" button for multiple sections
 backToMenuButtons.forEach((button) => {
   button.addEventListener("click", () => {
+    playSound("back");
     // Find and hide the currently visible section
     const sections = [
       spDisplay,
@@ -177,14 +188,17 @@ function TimerCheck() {
 
           switch (selected) {
             case 1:
+              playSound("rock");
               playerChoiceImage.src = "/images/rock.png";
               break;
 
             case 2:
+              playSound("paper");
               playerChoiceImage.src = "/images/paper.png";
               break;
 
             case 3:
+              playSound("scissors");
               playerChoiceImage.src = "/images/scissors.png";
               break;
           }
@@ -202,14 +216,17 @@ function selection(element) {
 
   switch (element) {
     case "/images/rock.png":
+      playSound("rock");
       selected = 1;
       break;
 
     case "/images/paper.png":
+      playSound("paper");
       selected = 2;
       break;
 
     case "/images/scissors.png":
+      playSound("scissors");
       selected = 3;
       break;
   }
@@ -296,9 +313,11 @@ function check(playerScore, computerScore) {
   if (playerScore == drops) {
     gm = true;
     gameOver("VICTORY!", playerScore, computerScore);
+    playSound("victory");
   } else if (computerScore == drops) {
     gm = true;
     gameOver("DEFEAT!", playerScore, computerScore);
+    playSound("defeat");
   }
   return;
 }
@@ -335,16 +354,19 @@ document.addEventListener("keydown", (event) => {
   switch (event.code) {
     case "Numpad1": // Numpad 1 key
       selected = 1; // Rock
+      playSound("rock");
       playerChoiceImage.src = "/images/rock.png";
       break;
 
     case "Numpad2": // Numpad 2 key
       selected = 2; // Paper
+      playSound("paper");
       playerChoiceImage.src = "/images/paper.png";
       break;
 
     case "Numpad3": // Numpad 3 key
       selected = 3; // Scissors
+      playSound("scissors");
       playerChoiceImage.src = "/images/scissors.png";
       break;
 

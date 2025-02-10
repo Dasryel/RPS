@@ -168,6 +168,13 @@ input[type="text"] {
   font-size: 95px;
 }
 
+#mpNameBar {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 70px;
+  margin-right: 70px;
+}
+
 #Username {
   width: 100%;
   border: 2px solid black;

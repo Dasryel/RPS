@@ -98,7 +98,9 @@ io.on("connection", (socket) => {
           `Joining lobby ${code}`,
           lobby.players,
           lobby.drops,
-          lobby.timer
+          lobby.timer,
+          lobby.player1Name,
+          lobby.player2Name
         );
       } else {
         console.log(`Lobby ${code} is full.`);
@@ -112,8 +114,9 @@ io.on("connection", (socket) => {
 
   socket.on("lobby check for player", (code) => {
     if (lobbies.has(code) && lobbies.get(code).players == 2) {
+      const lobby = lobbies.get(code);
       console.log("game can be started!");
-      socket.emit("game can be started");
+      socket.emit("game can be started", lobby.player1Name, lobby.player2Name);
     } else if (lobbies.has(code)) {
       console.log(code + " LOBBY CHECK: not enough players");
     }
@@ -173,7 +176,9 @@ io.on("connection", (socket) => {
             "game over",
             lobby.player1Score,
             lobby.player2Score,
-            1
+            1,
+            lobby.player1Name,
+            lobby.player2Name
           );
         }
       } else if (result === 2) {
@@ -184,7 +189,9 @@ io.on("connection", (socket) => {
             "game over",
             lobby.player1Score,
             lobby.player2Score,
-            2
+            2,
+            lobby.player1Name,
+            lobby.player2Name
           );
         }
       }
@@ -213,7 +220,12 @@ io.on("connection", (socket) => {
       } else {
         waiting = 2;
       }
-      io.to(lobbyCode).emit("waiting for other player", waiting);
+      io.to(lobbyCode).emit(
+        "waiting for other player",
+        waiting,
+        lobby.player1Name,
+        lobby.player2Name
+      );
       console.log("waiting for player" + waiting);
     }
   });

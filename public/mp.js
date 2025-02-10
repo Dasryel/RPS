@@ -10,6 +10,49 @@ const mpTimerText = document.getElementById("mpTimerText");
 const player2ScoreText = document.getElementById("player2ScoreText");
 const hostCheckText = document.getElementById("hostCheckText");
 
+const player1name = document.getElementById("player1name");
+const player2name = document.getElementById("player2name");
+
+//sounds
+
+let muted = false;
+const status = document.getElementById("status");
+
+const muteAudio = new Audio("sounds/muted.mp3");
+const unmuteAudio = new Audio("sounds/unmute.mp3");
+
+const sounds = {
+  click: new Audio("sounds/back.mp3"),
+  back: new Audio("sounds/click.mp3"),
+  rock: new Audio("sounds/rock.mp3"),
+  paper: new Audio("sounds/paper.mp3"),
+  scissors: new Audio("sounds/scissors.mp3"),
+  victory: new Audio("sounds/victory.mp3"),
+  defeat: new Audio("sounds/defeat.mp3"),
+};
+
+function playSound(sound) {
+  if (muted === false) {
+    if (sounds[sound]) {
+      sounds[sound].currentTime = 0;
+      sounds[sound].play();
+    }
+  }
+}
+
+function muteFunction() {
+  if (muted === false) {
+    muted = true;
+    muteImg.src = "images/muted.png";
+    muteAudio.play();
+  } else {
+    muted = false;
+    muteImg.src = "images/unmuted.png";
+    unmuteAudio.play();
+  }
+  status.textContent = "MUTED:" + muted;
+}
+
 //chat
 const chatMessage = document.getElementById("chatMessage");
 const ChatForm = document.getElementById("ChatForm");
@@ -60,6 +103,8 @@ const rematchDisplay = document.getElementById("rematchDisplay");
 
 const player1ChoiceImg = document.getElementById("player1ChoiceImg");
 const player2ChoiceImg = document.getElementById("player2ChoiceImg");
+
+muteImg = document.getElementById("muteImg");
 //button
 const backToMpMenuButtonFromWaiting = document.getElementById(
   "backToMpMenuButtonFromWaiting"
@@ -104,6 +149,7 @@ let sCounter;
 waitingDisplay.style.display = "none";
 
 hostButton.addEventListener("click", (event) => {
+  playSound("click");
   randomNumber = Math.floor(100000 + Math.random() * 900000);
   hostLobbyCode = randomNumber;
   gameCode = hostLobbyCode;
@@ -138,17 +184,21 @@ hostButton.addEventListener("click", (event) => {
 socket.on("destroy timer", () => {
   clearInterval(hostTimerCheck);
 });
-socket.on("game can be started", () => {
+socket.on("game can be started", (player1, player2) => {
   clearInterval(hostTimerCheck);
   gameTimer = timerMpSetting;
   mpMenu.style.display = "none";
   waitingDisplay.style.display = "none";
   mpDisplay.style.display = "grid";
 
+  player1name.textContent = player1;
+  player2name.textContent = player2;
+
   startGame(firstTo, timerMpSetting);
 });
 
 backToMpMenuButtonFromWaiting.addEventListener("click", (event) => {
+  playSound("back");
   console.log("Destroying lobby with code:", hostLobbyCode);
   waitingDisplay.style.display = "none";
   socket.emit("destroy lobby", hostLobbyCode);
@@ -161,6 +211,7 @@ backToMpMenuButtonFromWaiting.addEventListener("click", (event) => {
 });
 */
 joinButton.addEventListener("click", (event) => {
+  playSound("click");
   lobbyCode = parseInt(lobbyCodeInput.value, 10);
   gameCode = lobbyCode;
   channelId.textContent = gameCode;
@@ -174,7 +225,7 @@ function mpReset() {
   player2ChoiceImg.src = "/images/p.png";
 }
 
-socket.on("lobby check", (status, players, drops, timer) => {
+socket.on("lobby check", (status, players, drops, timer, player1, player2) => {
   alert(status);
   if (players === 2) {
     mpReset();
@@ -183,6 +234,9 @@ socket.on("lobby check", (status, players, drops, timer) => {
     mpDisplay.style.display = "grid";
     gameTimer = timer;
     gameFirst2 = drops;
+
+    player1name.textContent = player1;
+    player2name.textContent = player2;
 
     TimerForBothPlayers = timer;
 
@@ -248,12 +302,15 @@ function mpSelection(element) {
 
   switch (element) {
     case "/images/rock.png":
+      playSound("rock");
       choice = 1;
       break;
     case "/images/paper.png":
+      playSound("paper");
       choice = 2;
       break;
     case "/images/scissors.png":
+      playSound("scissors");
       choice = 3;
       break;
     default:
@@ -263,22 +320,22 @@ function mpSelection(element) {
   processSelection(choice);
 }
 
-socket.on("waiting for other player", (waiting) => {
+socket.on("waiting for other player", (waiting, player1, player2) => {
   if (waiting == 1) {
     if (isHost === true) {
-      mpTimerText.textContent = "player 2 has chosen their piece";
+      mpTimerText.textContent = player2 + " has chosen their piece";
       player2ChoiceImg.src = "/images/q.png";
       player1ChoiceImg.src = "/images/p.png";
     } else {
-      mpTimerText.textContent = "Player 1 is still choosing...";
+      mpTimerText.textContent = player1 + " is still choosing...";
       player1ChoiceImg.src = "/images/p.png";
     }
   } else {
     if (isHost === true) {
-      mpTimerText.textContent = "Player 2 is still choosing...";
+      mpTimerText.textContent = player2 + " is still choosing...";
       player2ChoiceImg.src = "/images/p.png";
     } else {
-      mpTimerText.textContent = "player 1 has chosen their piece";
+      mpTimerText.textContent = player1 + " has chosen their piece";
       player2ChoiceImg.src = "/images/p.png";
       player1ChoiceImg.src = "/images/q.png";
     }
@@ -311,21 +368,38 @@ socket.on("both parties have selected", () => {
   }
 });
 
-socket.on("game over", (player1Score, player2Score, winner) => {
-  if (isHost === true) {
-    if (winner === 1) {
-      displayGameOver(player1Score, player2Score, "VICTORY!");
-    } else {
-      displayGameOver(player1Score, player2Score, "DEFEAT!");
-    }
-  } else {
-    if (winner === 2) {
-      displayGameOver(player2Score, player1Score, "VICTORY!");
-    } else {
-      displayGameOver(player2Score, player1Score, "DEFEAT!");
-    }
+socket.on(
+  "game over",
+  (player1Score, player2Score, winner, player1, player2) => {
+    setTimeout(() => {
+      const log = document.createElement("h4");
+
+      if (isHost === true) {
+        if (winner === 1) {
+          log.textContent = player1 + " HAS WON THE GAME!!";
+          displayGameOver(player1Score, player2Score, "VICTORY!");
+          playSound("victory");
+        } else {
+          log.textContent = player2 + " HAS WON THE GAME!!";
+          displayGameOver(player1Score, player2Score, "DEFEAT!");
+          playSound("defeat");
+        }
+      } else {
+        if (winner === 2) {
+          log.textContent = player2 + " HAS WON THE GAME!!";
+          displayGameOver(player2Score, player1Score, "VICTORY!");
+          playSound("victory");
+        } else {
+          log.textContent = player1 + " HAS WON THE GAME!!";
+          displayGameOver(player2Score, player1Score, "DEFEAT!");
+          playSound("defeat");
+        }
+      }
+      chatLog.append(log);
+      lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+    }, 200);
   }
-});
+);
 
 function displayGameOver(player1Score, player2Score, result) {
   resultTextMp.textContent = result;
@@ -336,6 +410,7 @@ function displayGameOver(player1Score, player2Score, result) {
 }
 
 backToMenuButtonFromMpGame.addEventListener("click", (event) => {
+  playSound("back");
   socket.emit("destroy lobby", gameCode);
   isHost = false;
   mainMenu.style.display = "grid";
@@ -348,6 +423,7 @@ function getWinPicture(pic) {
   switch (pic) {
     case 1:
       return "/images/rockwin.png";
+
     case 2:
       return "/images/paperwin.png";
     case 3:
@@ -466,6 +542,7 @@ socket.on(
 );
 
 replayButtonMp.addEventListener("click", (event) => {
+  playSound("click");
   let player = 0;
   if (isHost === true) {
     player = 1;
@@ -506,6 +583,7 @@ socket.on("display rematch request", (player) => {
 });
 
 rematchDeclineButton.addEventListener("click", (event) => {
+  playSound("click");
   let player = 0;
   if (isHost === true) {
     player = 1;
@@ -548,6 +626,7 @@ socket.on("force leave", () => {
 });
 
 rematchAcceptButton.addEventListener("click", (event) => {
+  playSound("click");
   socket.emit("rematch", gameCode);
 });
 
@@ -610,12 +689,14 @@ socket.on("welcome", (id) => {
 });
 
 enterGameButton.addEventListener("click", (event) => {
+  playSound("click");
   welcomeDiv.style.display = "none";
 
   socket.emit("joined", Username.value);
 });
 
 changeUsernameButton.addEventListener("click", (event) => {
+  playSound("click");
   socket.emit("name change request");
 });
 

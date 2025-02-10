@@ -3,7 +3,7 @@
   <head>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="icon" type="image/x-icon" href="/images/icon.ico" />
-    <title>Rock paper sciccors</title>
+    <title>Rock Paper Scissors</title>
   </head>
 
   <body>
@@ -109,6 +109,10 @@
       <div id="mpGameDisplay">
         <h1 id="hostCheckText"></h1>
         <h1 id="mpTitleText"></h1>
+        <div id="mpNameBar">
+          <h2 id="player1name">Player1</h2>
+          <h2 id="player2name">Player2</h2>
+        </div>
         <div id="mpScoreBar">
           <h2 id="player1ScoreText">0</h2>
           <h2 id="mpTimerText"></h2>
@@ -203,6 +207,11 @@
 
     <div id="optionDisplay">
       <h2>Coming soon!</h2>
+      <img
+        id="muteImg"
+        src="/images/unmuted.png"
+        onclick="muteFunction()"
+      /><br />
       <button id="changeUsernameButton">Change username</button><br />
       <button id="backToMenuButton">← Back</button>
     </div>
@@ -221,6 +230,7 @@
 
     <div id="statsDiv">
       <p id="playersOnlineText">Players Online: 0</p>
+      <p id="status"></p>
       <p id="vText">RPS Alpha v0.1</p>
     </div>
 
