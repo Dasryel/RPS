@@ -312,3 +312,18 @@ input[type="text"] {
   width: 30px; /* Adjust size as needed */
   height: 30px;
 }
+
+@media (max-width: 1200px) {
+  #lobbyChatContainer {
+    left: 33%;
+    bottom: 33%;
+  }
+
+  .modal-contentMp {
+    font-size: 30px;
+    justify-content: center;
+    min-width: 300px;
+    position: absolute;
+    top: 15%;
+  }
+}

@@ -29,6 +29,9 @@ const sounds = {
   scissors: new Audio("sounds/scissors.mp3"),
   victory: new Audio("sounds/victory.mp3"),
   defeat: new Audio("sounds/defeat.mp3"),
+  msg: new Audio("sounds/msg.mp3"),
+  w: new Audio("sounds/w.mp3"),
+  l: new Audio("sounds/l.mp3"),
 };
 
 function playSound(sound) {
@@ -50,7 +53,7 @@ function muteFunction() {
     muteImg.src = "images/unmuted.png";
     unmuteAudio.play();
   }
-  status.textContent = "MUTED:" + muted;
+  //status.textContent = "MUTED:" + muted;
 }
 
 //chat
@@ -73,6 +76,7 @@ socket.on("display chat", (msg, id) => {
 
   chatLog.appendChild(item);
   lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
+  playSound("msg");
 });
 
 ChatForm.addEventListener("submit", (event) => {
@@ -397,7 +401,7 @@ socket.on(
       }
       chatLog.append(log);
       lobbyChatDisplay.scrollTop = lobbyChatDisplay.scrollHeight;
-    }, 200);
+    }, 400);
   }
 );
 
@@ -459,8 +463,10 @@ socket.on(
       winImage.className = "winImage";
       if (isHost === true) {
         log.style.backgroundColor = "green";
+        playSound("w");
       } else {
         log.style.backgroundColor = "red";
+        playSound("l");
       }
 
       log.appendChild(player1Text);
@@ -478,8 +484,10 @@ socket.on(
 
       if (isHost === true) {
         log.style.backgroundColor = "red";
+        playSound("l");
       } else {
         log.style.backgroundColor = "green";
+        playSound("w");
       }
       log.appendChild(player1Text);
       log.appendChild(winImage);
